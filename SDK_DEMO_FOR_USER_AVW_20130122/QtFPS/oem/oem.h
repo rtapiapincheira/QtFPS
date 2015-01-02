@@ -132,5 +132,7 @@ int oem_iso_upgrade(uchar* pBuf, int nLen);
 
 QString my_oem_error(int nack, int nPos);
 int my_oem_capturing(bool best, QString &err);
+int my_oem_downloading_image();
+int my_oem_loading_image(QString &err);
 
 #endif

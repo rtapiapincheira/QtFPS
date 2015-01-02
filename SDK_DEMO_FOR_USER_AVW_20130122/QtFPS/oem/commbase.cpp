@@ -1,16 +1,13 @@
 #include "oem.h"
 
-CCommSerial::CCommSerial()
-{
+CCommSerial::CCommSerial() {
 }
 
-CCommSerial::~CCommSerial()
-{
+CCommSerial::~CCommSerial() {
     close();
 }
 
-bool CCommSerial::open(int nPort, uint dwBaudrate)
-{
+bool CCommSerial::open(int nPort, uint dwBaudrate) {
     close();
 
     m_serialport.setPortName(QString("COM%1").arg(nPort));
@@ -22,8 +19,7 @@ bool CCommSerial::open(int nPort, uint dwBaudrate)
     return m_serialport.open(QIODevice::ReadWrite);
 }
 
-bool CCommSerial::close()
-{
+bool CCommSerial::close() {
     if (m_serialport.isOpen()) {
         m_serialport.close();
         return true;
@@ -31,8 +27,7 @@ bool CCommSerial::close()
     return false;
 }
 
-int CCommSerial::sendData(uchar *buffer, int nSize, uint dwTimeOut)
-{
+int CCommSerial::sendData(uchar *buffer, uint nSize, uint dwTimeOut) {
     //qDebug() << "Sending data to open port," << nSize << "bytes";
 
     int written = 0;
@@ -47,32 +42,38 @@ int CCommSerial::sendData(uchar *buffer, int nSize, uint dwTimeOut)
     return written;
 }
 
-int CCommSerial::recvData(uchar *buffer, int nSize, uint dwTimeOut)
-{
+int CCommSerial::recvData(uchar *buffer, uint nSize, uint dwTimeOut) {
 
-    //qDebug() << "trying to read" << nSize << "bytes from open port, dwTimeOut:" << dwTimeOut;
+    qDebug() << "trying to read" << nSize << "bytes from open port, dwTimeOut:" << dwTimeOut;
 
-    int read = 0;
-    while (read < nSize){
+    qint64 ds = QDateTime::currentMSecsSinceEpoch();
+
+    uint read = 0;
+    while (read < nSize && (QDateTime::currentMSecsSinceEpoch() - ds < dwTimeOut)) {
         //qDebug() << "Waiting some bytes";
 
         // If no bytes, then wait
         if(!m_serialport.bytesAvailable()) {
+            qApp->processEvents();
+            continue;
+            /*
             // If the wait is timed out
             if(!m_serialport.waitForReadyRead(dwTimeOut)) {
                 qDebug() << "Error, timed out while reading from communications, read:" << read;
                 return read;
             }
+            */
         }
 
         if (m_serialport.bytesAvailable() > 0 && read < nSize) {
+            //qDebug() << "reading at most" << nSize-read << "bytes";
             int r = m_serialport.read((char*) (buffer+read), nSize-read);
             read += r;
-            //qDebug() << "read" << r << "bytes from port, " << read << "/" << nSize;
+            //qDebug() << "    ->> read" << r << "bytes from port, " << read << "/" << nSize;
         }
     }
 
-    //qDebug() << "Total bytes read: " << read;
+    qDebug() << "Total bytes read: " << read << "out of " << nSize;
 
     return read;
 }
@@ -82,22 +83,18 @@ int CCommSerial::recvData(uchar *buffer, int nSize, uint dwTimeOut)
 /************************************************************************/
 CCommSerial comm_serial;
 
-int comm_send(uchar* buffer, int nsize, int ntimeout)
-{
+int comm_send(uchar* buffer, uint nsize, int ntimeout) {
     return comm_serial.sendData(buffer, nsize, ntimeout);
 }
 
-int comm_recv(uchar* buffer, int nsize, int ntimeout)
-{
+int comm_recv(uchar* buffer, uint nsize, int ntimeout) {
     return comm_serial.recvData(buffer, nsize, ntimeout);
 }
 
-bool comm_open_serial(int nComNumber, int nComBaudRate)
-{
+bool comm_open_serial(int nComNumber, uint nComBaudRate) {
 	comm_close();
-	
-    if(!comm_serial.open(nComNumber, nComBaudRate))
-	{
+
+    if(!comm_serial.open(nComNumber, nComBaudRate)) {
         qDebug() << "couldn't open, so closing it";
 		comm_close();
         return false;
@@ -108,7 +105,6 @@ bool comm_open_serial(int nComNumber, int nComBaudRate)
     return true;
 }
 
-void comm_close()
-{
+void comm_close() {
     comm_serial.close();
 }

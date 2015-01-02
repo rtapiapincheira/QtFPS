@@ -3,6 +3,7 @@
 #include "oem/oem.h"
 
 #include <QDebug>
+#include <QFileDialog>
 #include <QMessageBox>
 
 LedLocker::LedLocker() {
@@ -22,6 +23,10 @@ void UiHandler::setResult(const QString &line1, const QString &line2) {
     QString result = line1 + "\n" + line2;
     qDebug() << "setResult:" << result;
     ui->result->setText(result);
+}
+
+void UiHandler::uiPolling() {
+    qApp->processEvents();
 }
 
 void UiHandler::setup(UiHelper *_ui) {
@@ -56,13 +61,11 @@ void UiHandler::handleSaveImageToFileClicked() {
 void UiHandler::handleOpenClicked() {
     qDebug() << "handleOpenClicked";
 
-    int nBaudrate[5] = {9600, 19200, 38400, 57600, 115200};
-
     int port = ui->serialPortNumber->currentText().replace("COM","").toInt();
 
     qDebug() << "Opening port:" << port;
 
-    int baud = nBaudrate[ui->baudrate->currentIndex()];
+    int baud = ui->baudrate->currentText().toInt();
 
     if(!comm_open_serial(port, 9600) ||
         oem_change_baudrate(baud) < 0 ||
@@ -96,8 +99,7 @@ void UiHandler::handleOpenClicked() {
             .arg(sn.toUpper())
     );
 
-    ui->open->setEnabled(false);
-    ui->close->setEnabled(true);
+    ui->disableOnConnected();
 }
 
 void UiHandler::handleCloseClicked() {
@@ -108,8 +110,7 @@ void UiHandler::handleCloseClicked() {
 
     setResult("");
 
-    ui->open->setEnabled(true);
-    ui->close->setEnabled(false);
+    ui->enableOnDisconnected();
 }
 
 void UiHandler::handleEnrollClicked() {
@@ -124,6 +125,9 @@ void UiHandler::handleEnrollClicked() {
         setResult("Communication error!");
         return;
     }
+
+    uiPolling();
+
     if(gwLastAck == NACK_INFO) {
         qDebug() << "handleEnrollClicked: error";
         setResult(my_oem_error(gwLastAckParam, nID));
@@ -132,6 +136,7 @@ void UiHandler::handleEnrollClicked() {
 
     for(int i=1; i<=3; i++) {
         setResult(QString("Input finger %1!").arg(i));
+        uiPolling();
 
         QString err;
         if(my_oem_capturing(true, err) < 0) {
@@ -142,6 +147,7 @@ void UiHandler::handleEnrollClicked() {
         qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
         setResult("Processing fingerprint...");
+        uiPolling();
 
         if(oem_enroll_nth(nID, i) < 0) {
             setResult("Communication error!");
@@ -156,6 +162,7 @@ void UiHandler::handleEnrollClicked() {
         qint64 dt = (QDateTime::currentMSecsSinceEpoch() - ds);
 
         setResult("Take off finger, please ...");
+        uiPolling();
 
         if(i<3) {
             while(true) {
@@ -174,9 +181,11 @@ void UiHandler::handleEnrollClicked() {
             }
         }
         setResult(QString("Process time: %1 ms").arg(dt));
+        uiPolling();
     }
 
     setResult(QString("Enroll OK (ID = %1)!").arg(nID));
+    uiPolling();
 }
 
 void UiHandler::handleGetUserCountClicked() {
@@ -212,11 +221,13 @@ void UiHandler::handleVerifyClicked() {
     }
 
     setResult("");
+    uiPolling();
 
     QString err;
 
     while(true) {
         setResult("Input finger !");
+        uiPolling();
 
         qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
@@ -226,6 +237,7 @@ void UiHandler::handleVerifyClicked() {
         }
 
         setResult("Processing fingerprint...");
+        uiPolling();
 
         if(oem_verify(nID) < 0) {
             setResult("Communication error!");
@@ -300,6 +312,60 @@ void UiHandler::handleDeleteAllClicked() {
 
 void UiHandler::handleVerifyTemplateClicked() {
     qDebug() << "handleVerifyTemplateClicked";
+
+    int nID = ui->id->value();
+
+    if(oem_check_enrolled(nID) < 0) {
+        setResult("Communication error!");
+        return;
+    }
+    if(gwLastAck == NACK_INFO) {
+        setResult(my_oem_error(gwLastAckParam, nID));
+        return;
+    }
+
+    QString m_strFilePath = QFileDialog::getOpenFileName(0,
+         tr("Open Template File"), tr("."), tr("Template files(*.dat *.bin *.db)"));
+
+    if(m_strFilePath.isEmpty()) {
+        return;
+    }
+
+    qint64 ds = QDateTime::currentMSecsSinceEpoch();
+
+    QFile m_File(m_strFilePath);
+    if (!m_File.open(QIODevice::ReadOnly)) {
+        setResult("Cannot open file for read!");
+        return;
+    }
+
+    // Read the file bit by bit until the end of it.
+    int currentRead = 0;
+    while(currentRead < FP_TEMPLATE_SIZE) {
+        int r = m_File.read((char*)gbyTemplate+currentRead, FP_TEMPLATE_SIZE-currentRead);
+        if (r <= 0) {
+            break;
+        }
+        currentRead += r;
+    }
+
+    m_File.close();
+
+    if(currentRead != FP_TEMPLATE_SIZE) {
+        setResult("Invalid size for read!");
+        return;
+    }
+
+    if(oem_verify_template(nID) < 0) {
+        setResult("Communication error!");
+        return;
+    }
+    if(gwLastAck == NACK_INFO) {
+        setResult(my_oem_error(gwLastAck, nID));
+        return;
+    }
+
+    setResult(QString("ID = %1      : %2 ms").arg(nID).arg(QDateTime::currentMSecsSinceEpoch()-ds));
 }
 
 void UiHandler::handleGetTemplateClicked() {
@@ -342,6 +408,28 @@ void UiHandler::handleGetDatabaseClicked() {
 
 void UiHandler::handleGetImageClicked() {
     qDebug() << "handleGetImageClicked";
+
+    LedLocker ll;
+    Q_UNUSED(&ll);
+    oem_cmos_led(true);
+
+    setResult("Input finger !");
+    uiPolling();
+
+    QString err;
+    if(my_oem_capturing(true, err) < 0) {
+        qDebug() << "my_oem_capturing: error";
+        setResult(err);
+        return;
+    }
+    if(my_oem_loading_image(err) < 0) {
+        qDebug() << "my_oem_loading_image: error";
+        setResult(err);
+        return;
+    }
+
+    ui->drawImage(gbyImg8bit, 0, 0, 256, 256);
+    setResult("Get Image OK !");
 }
 
 void UiHandler::handleSetDatabaseClicked() {

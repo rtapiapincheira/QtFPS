@@ -3,9 +3,13 @@
 
 #include "ui_mainwindow.h"
 
+#include <QDebug>
 #include <QMainWindow>
 
 class UiHelper {
+private:
+
+
 public:
     QGraphicsView *canvas;
 
@@ -45,6 +49,11 @@ public:
     virtual ~UiHelper();
 
     void setup(Ui::MainWindowDialog *mw);
+
+    void disableOnConnected();
+    void enableOnDisconnected();
+
+    void drawImage(void *data, int x, int y, int w, int h);
 };
 
 #endif // UIHELPER_H

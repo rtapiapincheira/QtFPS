@@ -118,6 +118,7 @@ public:
         horizontalLayout_4->setContentsMargins(-1, 0, -1, -1);
         save_image_to_file = new QPushButton(centralWidget);
         save_image_to_file->setObjectName(QStringLiteral("save_image_to_file"));
+        save_image_to_file->setEnabled(false);
         save_image_to_file->setMaximumSize(QSize(180, 16777215));
 
         horizontalLayout_4->addWidget(save_image_to_file);
@@ -175,6 +176,7 @@ public:
 
         verify_template = new QPushButton(centralWidget);
         verify_template->setObjectName(QStringLiteral("verify_template"));
+        verify_template->setEnabled(false);
         verify_template->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(verify_template, 9, 1, 1, 1);
@@ -212,12 +214,14 @@ public:
 
         is_press_finger = new QPushButton(centralWidget);
         is_press_finger->setObjectName(QStringLiteral("is_press_finger"));
+        is_press_finger->setEnabled(false);
         is_press_finger->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(is_press_finger, 11, 1, 1, 1);
 
         verify_1_1 = new QPushButton(centralWidget);
         verify_1_1->setObjectName(QStringLiteral("verify_1_1"));
+        verify_1_1->setEnabled(false);
         verify_1_1->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(verify_1_1, 7, 1, 1, 1);
@@ -230,12 +234,14 @@ public:
 
         identify_template = new QPushButton(centralWidget);
         identify_template->setObjectName(QStringLiteral("identify_template"));
+        identify_template->setEnabled(false);
         identify_template->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(identify_template, 10, 1, 1, 1);
 
         get_user_count = new QPushButton(centralWidget);
         get_user_count->setObjectName(QStringLiteral("get_user_count"));
+        get_user_count->setEnabled(false);
         get_user_count->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(get_user_count, 6, 2, 1, 1);
@@ -249,24 +255,28 @@ public:
 
         enroll = new QPushButton(centralWidget);
         enroll->setObjectName(QStringLiteral("enroll"));
+        enroll->setEnabled(false);
         enroll->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(enroll, 6, 1, 1, 1);
 
         get_raw_image = new QPushButton(centralWidget);
         get_raw_image->setObjectName(QStringLiteral("get_raw_image"));
+        get_raw_image->setEnabled(false);
         get_raw_image->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(get_raw_image, 13, 1, 1, 1);
 
         cancel = new QPushButton(centralWidget);
         cancel->setObjectName(QStringLiteral("cancel"));
+        cancel->setEnabled(false);
         cancel->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(cancel, 14, 1, 1, 1);
 
         get_live_image = new QPushButton(centralWidget);
         get_live_image->setObjectName(QStringLiteral("get_live_image"));
+        get_live_image->setEnabled(false);
         get_live_image->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(get_live_image, 16, 1, 1, 1);
@@ -283,6 +293,7 @@ public:
 
         id = new QSpinBox(centralWidget);
         id->setObjectName(QStringLiteral("id"));
+        id->setEnabled(false);
         QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Fixed);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
@@ -297,12 +308,14 @@ public:
 
         set_database = new QPushButton(centralWidget);
         set_database->setObjectName(QStringLiteral("set_database"));
+        set_database->setEnabled(false);
         set_database->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(set_database, 12, 2, 1, 1);
 
         get_image = new QPushButton(centralWidget);
         get_image->setObjectName(QStringLiteral("get_image"));
+        get_image->setEnabled(false);
         get_image->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(get_image, 12, 1, 1, 1);
@@ -318,36 +331,42 @@ public:
 
         get_template = new QPushButton(centralWidget);
         get_template->setObjectName(QStringLiteral("get_template"));
+        get_template->setEnabled(false);
         get_template->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(get_template, 9, 2, 1, 1);
 
         delete_all = new QPushButton(centralWidget);
         delete_all->setObjectName(QStringLiteral("delete_all"));
+        delete_all->setEnabled(false);
         delete_all->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(delete_all, 8, 2, 1, 1);
 
         identify_1_n = new QPushButton(centralWidget);
         identify_1_n->setObjectName(QStringLiteral("identify_1_n"));
+        identify_1_n->setEnabled(false);
         identify_1_n->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(identify_1_n, 8, 1, 1, 1);
 
         delete_id = new QPushButton(centralWidget);
         delete_id->setObjectName(QStringLiteral("delete_id"));
+        delete_id->setEnabled(false);
         delete_id->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(delete_id, 7, 2, 1, 1);
 
         set_template = new QPushButton(centralWidget);
         set_template->setObjectName(QStringLiteral("set_template"));
+        set_template->setEnabled(false);
         set_template->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(set_template, 10, 2, 1, 1);
 
         get_database = new QPushButton(centralWidget);
         get_database->setObjectName(QStringLiteral("get_database"));
+        get_database->setEnabled(false);
         get_database->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(get_database, 11, 2, 1, 1);
@@ -407,7 +426,6 @@ public:
         get_image->setText(QApplication::translate("MainWindowDialog", "Get Image", 0));
         serial_port_number->clear();
         serial_port_number->insertItems(0, QStringList()
-         << QApplication::translate("MainWindowDialog", "COM1", 0)
          << QApplication::translate("MainWindowDialog", "COM2", 0)
          << QApplication::translate("MainWindowDialog", "COM3", 0)
          << QApplication::translate("MainWindowDialog", "COM4", 0)

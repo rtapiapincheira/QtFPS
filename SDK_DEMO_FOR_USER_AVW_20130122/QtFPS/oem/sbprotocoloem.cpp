@@ -43,7 +43,7 @@ int oemp_CheckCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt) {
 	return 0;
 }
 
-int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, int nParam) {
+int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam) {
 	SB_OEM_PKT pkt;
 	int nSentBytes;
 
@@ -84,6 +84,7 @@ int oemp_ReceiveCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
     }
 
     if((pkt.Head1 != STX1) || (pkt.Head2 != STX2)) {
+        qDebug() << "pkt.Head1=" << pkt.Head1 << ", STX1=" << STX1 << ", pkt.Head2=" << pkt.Head2 << ", STX2=" << STX2;
 		return PKT_HDR_ERR;
 	}
 
@@ -160,9 +161,14 @@ int oemp_ReceiveData(ushort wDevID, uchar* pBuf, int nSize) {
 		return PKT_PARAM_ERR;
     }
 
+    qDebug() << "oemp_ReceiveData, nSize=" << nSize;
+
 	/*AVW modify*/
     pCommBuf = new uchar[nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE];
     nReceivedBytes = comm_recv(pCommBuf, nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE, gCommTimeOut);
+
+    qDebug() << "oemp_ReceiveData, nReceivedBytes=" << nReceivedBytes;
+
     if(nReceivedBytes != nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE) {
         if(pCommBuf) {
 			delete pCommBuf;

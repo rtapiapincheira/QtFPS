@@ -2,6 +2,7 @@
 #define UIHANDLER_H
 
 #include <QObject>
+
 #include "uihelper.h"
 
 class LedLocker {
@@ -19,6 +20,7 @@ class UiHandler : public QObject
 
 private:
     void setResult(const QString &line1, const QString &line2="");
+    void uiPolling();
 
 public:
     explicit UiHandler(QObject *parent = 0);

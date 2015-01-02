@@ -16,12 +16,13 @@ typedef struct {
     uchar 	Head1;
     uchar 	Head2;
     ushort	wDevId;
-	int		nParam;
+    uint	nParam;
     ushort	wCmd;// or nAck
     ushort 	wChkSum;
-} SB_OEM_PKT;			
+} __attribute__((packed)) SB_OEM_PKT;
 
 #define SB_OEM_PKT_SIZE			12
+
 #define SB_OEM_HEADER_SIZE		2
 #define SB_OEM_DEV_ID_SIZE		2
 #define SB_OEM_CHK_SUM_SIZE		2
@@ -34,7 +35,7 @@ typedef struct {
 #define PKT_PARAM_ERR	PKT_ERR_START+5
 
 int oemp_CheckCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt);
-int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, int nParam);
+int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam);
 int oemp_ReceiveCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam);
 int oemp_SendData(ushort wDevID, uchar* pBuf, int nSize);
 int oemp_ReceiveData(ushort wDevID, uchar* pBuf, int nSize);

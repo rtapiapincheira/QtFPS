@@ -17,8 +17,9 @@ int oem_CommandRun(ushort wCmd, int nCmdParam) {
         qDebug() << "returning OEM_COMM_ERR (if #1)";
 		return OEM_COMM_ERR;
     }
-    if(oemp_ReceiveCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
-        qDebug() << "returning OEM_COMM_ERR (if #2)";
+    int x = 0;
+    if((x = oemp_ReceiveCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam)) < 0) {
+        qDebug() << "returning OEM_COMM_ERR (if #2), x=" << x;
 		return OEM_COMM_ERR;
     }
     //qDebug() << "returning 0 (OK)";
@@ -114,11 +115,11 @@ int oem_identify() {
 }
 
 int oem_verify_template(int nPos) {
-    if (oem_CommandRun(CMD_VERIFY_TEMPLATE, nPos) < 0) {
+    if(oem_CommandRun(CMD_VERIFY_TEMPLATE, nPos) < 0) {
 		return OEM_COMM_ERR;
     }
 	
-    if (gwLastAck == ACK_OK) {
+    if(gwLastAck == ACK_OK) {
         if(oemp_SendData(gwDevID, &gbyTemplate[0], FP_TEMPLATE_SIZE) < 0) {
 			return OEM_COMM_ERR;
         }
@@ -155,11 +156,13 @@ static uchar gbyImg256_2[202*258];
 static uchar gbyImg256_tmp[258*202];
 
 int oem_get_image() {
-    if(oem_CommandRun( CMD_GET_IMAGE, 0) < 0){
+    if(oem_CommandRun(CMD_GET_IMAGE, 0) < 0){
 		return OEM_COMM_ERR;
     }
 
-    if(oemp_ReceiveData( gwDevID, gbyImg256_tmp, sizeof(gbyImg256_tmp)) < 0) {
+    qDebug() << "receiving" << sizeof(gbyImg256_tmp) << "," << sizeof(gbyImg256_2) << "bytes";
+
+    if(oemp_ReceiveData(gwDevID, gbyImg256_tmp, sizeof(gbyImg256_tmp)) < 0) {
 		return OEM_COMM_ERR;
     }
 
@@ -208,8 +211,7 @@ int oem_get_rawimage() {
 	return 0;
 }
 
-int oem_get_template(int nPos)
-{
+int oem_get_template(int nPos) {
     if(oem_CommandRun(CMD_GET_TEMPLATE, nPos) < 0) {
 		return OEM_COMM_ERR;
     }
@@ -223,8 +225,7 @@ int oem_get_template(int nPos)
 	return 0;
 }
 
-int oem_add_template(int nPos)
-{
+int oem_add_template(int nPos) {
     if(oem_CommandRun( CMD_ADD_TEMPLATE, nPos) < 0) {
 		return OEM_COMM_ERR;
     }
@@ -245,12 +246,11 @@ int oem_get_database_end() {
     return oem_CommandRun(CMD_GET_DATABASE_END, 0);
 }
 
-int oem_get_database_start(){
+int oem_get_database_start() {
     return oem_CommandRun(CMD_GET_DATABASE_START, 0);
 }
 
-int oem_fw_upgrade(uchar* pBuf, int nLen)
-{
+int oem_fw_upgrade(uchar* pBuf, int nLen) {
     if(oem_CommandRun(CMD_FW_UPDATE, nLen) < 0) {
 		return OEM_COMM_ERR;
     }
@@ -263,11 +263,11 @@ int oem_fw_upgrade(uchar* pBuf, int nLen)
 		}
 
 		/* send firmware */	
-        while (cbWrote < nLen) {
-            if (cbWrote + nSegSize > nLen) {
+        while(cbWrote < nLen) {
+            if(cbWrote + nSegSize > nLen) {
                 nSegSize = nLen - cbWrote;
             }
-            if (oemp_SendData(gwDevID, &pBuf[cbWrote], nSegSize) < 0) {
+            if(oemp_SendData(gwDevID, &pBuf[cbWrote], nSegSize) < 0) {
 				return OEM_COMM_ERR;
             }
             if(oemp_ReceiveCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
@@ -279,8 +279,7 @@ int oem_fw_upgrade(uchar* pBuf, int nLen)
 	return 0;
 }
 
-int oem_iso_upgrade(uchar* pBuf, int nLen)
-{
+int oem_iso_upgrade(uchar* pBuf, int nLen) {
     if(oem_CommandRun(CMD_ISO_UPDATE, nLen) < 0) {
 		return OEM_COMM_ERR;
     }
@@ -293,15 +292,15 @@ int oem_iso_upgrade(uchar* pBuf, int nLen)
 		}
 		
 		/* send firmware */	
-        while (cbWrote < nLen) {
-            if (cbWrote + nSegSize > nLen) {
+        while(cbWrote < nLen) {
+            if(cbWrote + nSegSize > nLen) {
                 nSegSize = nLen - cbWrote;
             }
 			
-            if (oemp_SendData(gwDevID, &pBuf[cbWrote], nSegSize) < 0) {
+            if(oemp_SendData(gwDevID, &pBuf[cbWrote], nSegSize) < 0) {
 				return OEM_COMM_ERR;
             }
-            if (oemp_ReceiveCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
+            if(oemp_ReceiveCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
 				return OEM_COMM_ERR;
 			}
 			cbWrote += nSegSize;
@@ -310,8 +309,7 @@ int oem_iso_upgrade(uchar* pBuf, int nLen)
 	return 0;
 }
 
-QString my_oem_error(int nNackInfo, int nPos)
-{
+QString my_oem_error(int nNackInfo, int nPos) {
     if(nNackInfo > NACK_NONE) {
         switch(nNackInfo) {
         case NACK_TIMEOUT:
@@ -362,6 +360,7 @@ QString my_oem_error(int nNackInfo, int nPos)
 int my_oem_capturing(bool best, QString &err) {
     qint64 st = QDateTime::currentMSecsSinceEpoch();
     while(QDateTime::currentMSecsSinceEpoch() - st < 5000) {
+        qApp->processEvents();
         if(oem_capture(best ? 1 : 0) < 0) {
             err = "Communication error!";
             return -1;
@@ -371,4 +370,27 @@ int my_oem_capturing(bool best, QString &err) {
     }
     err = "Timeout!";
     return -2;
+}
+
+int my_oem_downloading_image(QString &err) {
+    if(oem_get_image() < 0) {
+        err = "Communication error!";
+        return -1;
+    } else if(gwLastAck == NACK_INFO) {
+        err = my_oem_error(gwLastAckParam, 0);
+        return -1;
+    }
+    err = "";
+    return 0;
+}
+
+int my_oem_loading_image(QString &err) {
+    if(oem_get_image() < 0) {
+        err = "Communication error";
+        return -1;
+    } else if(gwLastAck == NACK_INFO) {
+        err = my_oem_error(gwLastAckParam, 0);
+        return -1;
+    }
+    return 0;
 }
