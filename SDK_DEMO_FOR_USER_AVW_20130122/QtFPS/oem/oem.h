@@ -77,7 +77,7 @@ typedef struct _devinfo {
     uint FirmwareVersion;
     uint IsoAreaMaxSize;
     uchar DeviceSerialNumber[16];
-} __attribute__((packed)) devinfo;
+}/* __attribute__((packed))*/ devinfo;
 
 //////////////////////////////////////////////////////////////////////////
 #define FP_MAX_USERS        200
@@ -87,57 +87,78 @@ typedef struct _devinfo {
 
 #define IMG8BIT_SIZE       256*256
 
-extern uchar    gbyImg8bit[IMG8BIT_SIZE];
-extern uchar    gbyImgRaw[320*240];
-extern uchar    gbyTemplate[FP_TEMPLATE_SIZE];
-extern uchar    gbyTemplateDB[FP_TEMPLATE_DB_SIZE];
+class Oem {
 
-extern ushort  gwDevID;
-extern ushort  gwLastAck;
-extern int     gwLastAckParam;
-extern devinfo gDevInfo;
+public:
+    uchar    gbyImg8bit[IMG8BIT_SIZE];
+    uchar    gbyImgRaw[320*240];
+    uchar    gbyTemplate[FP_TEMPLATE_SIZE];
+    uchar    gbyTemplateDB[FP_TEMPLATE_DB_SIZE];
 
-//////////////////////////////////////////////////////////////////////////
-int oem_open();
-int oem_close();
-int oem_usb_internal_check();
-int oem_change_baudrate(int nBaudrate);
+    ushort  gwDevID;
+    ushort  gwLastAck;
+    int     gwLastAckParam;
+    devinfo gDevInfo;
 
-int oem_cmos_led(bool bOn);
+private:
+    Oemp oemp;
 
-int oem_enroll_count();
-int oem_check_enrolled(int nPos);
-int oem_enroll_start(int nPos);
-/*AVW*/
-int oem_enroll_nth(int nPos, int nTurn);
-int oem_is_press_finger();
+    void (*m_listener)(void* param);
+    void *m_parameter;
 
-int oem_delete(int nPos);
-int oem_delete_all();
+    int commandRun(ushort wCmd, int nCmdParam);
 
-int oem_verify(int nPos);
-int oem_identify();
-int oem_verify_template(int nPos);
-int oem_identify_template();
+public:
+    Oem();
 
-int oem_capture(bool bBest);
-int oem_get_image();
-int oem_get_rawimage();
+    void setCallback(void(*listener)(void*p), void *parameter);
 
-int oem_get_template(int nPos );
-int oem_add_template(int nPos);
-int oem_get_database_start();
-int oem_get_database_end();
+    int openPort(uint port, uint baudrate);
+    int closePort();
 
-int oem_fw_upgrade(uchar* pBuf, int nLen);
-int oem_iso_upgrade(uchar* pBuf, int nLen);
+    int openOem();
+    int closeOem();
 
-QString my_oem_error(int nack, int nPos);
-int my_oem_capturing(bool best, QString &err);
-int my_oem_downloading_image();
-int my_oem_loading_image(QString &err);
-int my_oem_loading_image_raw(QString &err);
-int my_oem_loading_image_live(QString &err);
+    int usbInternalCheck();
+    int changeBaudrate(int nBaudrate);
 
+    int cmosLed(bool bOn);
+
+    int enrollCount();
+    int checkEnrolled(int nPos);
+    int enrollStart(int nPos);
+    /*AVW*/
+    int enrollNth(int nPos, int nTurn);
+    int isPressFinger();
+
+    int deleteId(int nPos);
+    int deleteAll();
+
+    int verify(int nPos);
+    int identify();
+    int verifyTemplate(int nPos);
+    int identifyTemplate();
+
+    int capture(bool bBest);
+    int getImage();
+    int getRawimage();
+
+    int getTemplate(int nPos );
+    int addTemplate(int nPos);
+    int getDatabaseStart();
+    int getDatabaseEnd();
+
+//    int fwUpgrade(uchar* pBuf, int nLen);
+//    int isoUpgrade(uchar* pBuf, int nLen);
+
+public:
+    // TODO: remove from here and put in an utilitary class for GUIs
+    QString utilError(int nack, int nPos);
+    int utilCapturing(bool best, QString &err);
+    int utilDownloadingImage(QString &err);
+    int utilLoadingImage(QString &err);
+    int utilLoadingImageRaw(QString &err);
+    int utilLoadingImageLive(QString &err);
+};
 
 #endif

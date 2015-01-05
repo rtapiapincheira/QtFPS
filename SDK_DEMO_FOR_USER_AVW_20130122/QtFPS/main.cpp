@@ -1,14 +1,14 @@
 #include <QApplication>
 
 #include "mainwindow.h"
-#include "uihelper.h"
+#include "helper.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
     Ui::MainWindowDialog u;
-    UiHelper h;
+    Helper h;
 
     MainWindow w(&u, &h);
     w.show();

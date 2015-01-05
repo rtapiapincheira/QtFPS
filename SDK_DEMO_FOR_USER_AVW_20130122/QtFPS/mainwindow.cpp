@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(Ui::MainWindowDialog *_d, UiHelper *_ui) :
+MainWindow::MainWindow(Ui::MainWindowDialog *_d, Helper *_ui) :
     QMainWindow(0),
     ui(*_ui)
 {

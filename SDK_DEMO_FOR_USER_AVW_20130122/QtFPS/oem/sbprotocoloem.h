@@ -2,6 +2,7 @@
 #define __SB_PROTOCOL_OEM_H__
 
 #include <QtGlobal>
+#include "oem/commbase.h"
 
 // Header Of Cmd and Ack Packets
 #define STX1				0x55	//Header1 
@@ -34,10 +35,27 @@ typedef struct {
 #define PKT_CHK_SUM_ERR	PKT_ERR_START+4
 #define PKT_PARAM_ERR	PKT_ERR_START+5
 
-int oemp_CheckCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt);
-int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam);
-int oemp_ReceiveCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam);
-int oemp_SendData(ushort wDevID, uchar* pBuf, int nSize);
-int oemp_ReceiveData(ushort wDevID, uchar* pBuf, int nSize);
+class Oemp {
+private:
+    static uint gCommTimeOut;
+
+    static ushort calcChkSumOfCmdAckPkt(SB_OEM_PKT *pPkt);
+    static ushort calcChkSumOfDataPkt(uchar* pDataPkt, int nSize);
+
+    CCommSerial serial_port;
+
+public:
+
+    void setCallback(void(*listener)(void*p), void *parameter);
+
+    int open(uint port, uint baudrate);
+    int close();
+
+    int checkCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt);
+    int writeCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam);
+    int readCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam);
+    int write(ushort wDevID, uchar* pBuf, int nSize);
+    int read(ushort wDevID, uchar* pBuf, int nSize);
+};
 
 #endif

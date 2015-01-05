@@ -2,20 +2,20 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "uihelper.h"
-#include "uihandler.h"
+#include "helper.h"
+#include "handler.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(Ui::MainWindowDialog *ui, UiHelper *h);
+    explicit MainWindow(Ui::MainWindowDialog *ui, Helper *h);
     ~MainWindow();
 
 private:
-    UiHelper &ui;
-    UiHandler handler;
+    Helper &ui;
+    Handler handler;
 };
 
 #endif // MAINWINDOW_H

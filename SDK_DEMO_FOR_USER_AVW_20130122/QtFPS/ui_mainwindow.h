@@ -44,23 +44,12 @@ public:
     QLabel *label_4;
     QLabel *result;
     QGridLayout *gridLayout_2;
-    QPushButton *close;
-    QPushButton *verify_template;
-    QLabel *label_6;
-    QLabel *label_7;
-    QLabel *label_8;
-    QLabel *label_3;
-    QPushButton *open;
-    QPushButton *is_press_finger;
-    QPushButton *verify_1_1;
-    QLabel *label_2;
     QPushButton *identify_template;
     QPushButton *get_user_count;
     QComboBox *baudrate;
     QPushButton *enroll;
     QPushButton *get_raw_image;
     QPushButton *cancel;
-    QPushButton *get_live_image;
     QHBoxLayout *horizontalLayout;
     QLabel *label;
     QSpinBox *id;
@@ -73,20 +62,29 @@ public:
     QPushButton *delete_id;
     QPushButton *set_template;
     QPushButton *get_database;
-    QLabel *label_9;
+    QPushButton *close;
+    QPushButton *verify_template;
+    QLabel *label_6;
+    QLabel *label_8;
+    QLabel *label_3;
+    QPushButton *open;
+    QPushButton *is_press_finger;
+    QPushButton *verify_1_1;
+    QLabel *label_2;
+    QPushButton *get_live_image;
 
     void setupUi(QMainWindow *MainWindowDialog)
     {
         if (MainWindowDialog->objectName().isEmpty())
             MainWindowDialog->setObjectName(QStringLiteral("MainWindowDialog"));
-        MainWindowDialog->resize(600, 479);
+        MainWindowDialog->resize(600, 430);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindowDialog->sizePolicy().hasHeightForWidth());
         MainWindowDialog->setSizePolicy(sizePolicy);
-        MainWindowDialog->setMinimumSize(QSize(600, 479));
-        MainWindowDialog->setMaximumSize(QSize(600, 479));
+        MainWindowDialog->setMinimumSize(QSize(600, 430));
+        MainWindowDialog->setMaximumSize(QSize(600, 430));
         centralWidget = new QWidget(MainWindowDialog);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayout_3 = new QHBoxLayout(centralWidget);
@@ -166,72 +164,6 @@ public:
         gridLayout_2 = new QGridLayout();
         gridLayout_2->setSpacing(6);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
-        close = new QPushButton(centralWidget);
-        close->setObjectName(QStringLiteral("close"));
-        close->setEnabled(false);
-        close->setMinimumSize(QSize(120, 25));
-        close->setMaximumSize(QSize(120, 16777215));
-
-        gridLayout_2->addWidget(close, 3, 2, 1, 1);
-
-        verify_template = new QPushButton(centralWidget);
-        verify_template->setObjectName(QStringLiteral("verify_template"));
-        verify_template->setEnabled(false);
-        verify_template->setMinimumSize(QSize(0, 25));
-
-        gridLayout_2->addWidget(verify_template, 9, 1, 1, 1);
-
-        label_6 = new QLabel(centralWidget);
-        label_6->setObjectName(QStringLiteral("label_6"));
-        label_6->setMaximumSize(QSize(16777215, 5));
-
-        gridLayout_2->addWidget(label_6, 2, 1, 1, 1);
-
-        label_7 = new QLabel(centralWidget);
-        label_7->setObjectName(QStringLiteral("label_7"));
-        label_7->setMaximumSize(QSize(16777215, 5));
-
-        gridLayout_2->addWidget(label_7, 15, 1, 1, 1);
-
-        label_8 = new QLabel(centralWidget);
-        label_8->setObjectName(QStringLiteral("label_8"));
-        label_8->setMaximumSize(QSize(16777215, 5));
-
-        gridLayout_2->addWidget(label_8, 4, 1, 1, 1);
-
-        label_3 = new QLabel(centralWidget);
-        label_3->setObjectName(QStringLiteral("label_3"));
-        label_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_3, 0, 1, 1, 1);
-
-        open = new QPushButton(centralWidget);
-        open->setObjectName(QStringLiteral("open"));
-        open->setMinimumSize(QSize(120, 25));
-        open->setMaximumSize(QSize(120, 16777215));
-
-        gridLayout_2->addWidget(open, 3, 1, 1, 1);
-
-        is_press_finger = new QPushButton(centralWidget);
-        is_press_finger->setObjectName(QStringLiteral("is_press_finger"));
-        is_press_finger->setEnabled(false);
-        is_press_finger->setMinimumSize(QSize(0, 25));
-
-        gridLayout_2->addWidget(is_press_finger, 11, 1, 1, 1);
-
-        verify_1_1 = new QPushButton(centralWidget);
-        verify_1_1->setObjectName(QStringLiteral("verify_1_1"));
-        verify_1_1->setEnabled(false);
-        verify_1_1->setMinimumSize(QSize(0, 25));
-
-        gridLayout_2->addWidget(verify_1_1, 7, 1, 1, 1);
-
-        label_2 = new QLabel(centralWidget);
-        label_2->setObjectName(QStringLiteral("label_2"));
-        label_2->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_2, 1, 1, 1, 1);
-
         identify_template = new QPushButton(centralWidget);
         identify_template->setObjectName(QStringLiteral("identify_template"));
         identify_template->setEnabled(false);
@@ -273,13 +205,6 @@ public:
         cancel->setMinimumSize(QSize(0, 25));
 
         gridLayout_2->addWidget(cancel, 14, 1, 1, 1);
-
-        get_live_image = new QPushButton(centralWidget);
-        get_live_image->setObjectName(QStringLiteral("get_live_image"));
-        get_live_image->setEnabled(false);
-        get_live_image->setMinimumSize(QSize(0, 25));
-
-        gridLayout_2->addWidget(get_live_image, 16, 1, 1, 1);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
@@ -371,11 +296,72 @@ public:
 
         gridLayout_2->addWidget(get_database, 11, 2, 1, 1);
 
-        label_9 = new QLabel(centralWidget);
-        label_9->setObjectName(QStringLiteral("label_9"));
-        label_9->setMaximumSize(QSize(16777215, 5));
+        close = new QPushButton(centralWidget);
+        close->setObjectName(QStringLiteral("close"));
+        close->setEnabled(false);
+        close->setMinimumSize(QSize(120, 25));
+        close->setMaximumSize(QSize(120, 16777215));
 
-        gridLayout_2->addWidget(label_9, 17, 1, 1, 1);
+        gridLayout_2->addWidget(close, 3, 2, 1, 1);
+
+        verify_template = new QPushButton(centralWidget);
+        verify_template->setObjectName(QStringLiteral("verify_template"));
+        verify_template->setEnabled(false);
+        verify_template->setMinimumSize(QSize(0, 25));
+
+        gridLayout_2->addWidget(verify_template, 9, 1, 1, 1);
+
+        label_6 = new QLabel(centralWidget);
+        label_6->setObjectName(QStringLiteral("label_6"));
+        label_6->setMaximumSize(QSize(16777215, 5));
+
+        gridLayout_2->addWidget(label_6, 2, 1, 1, 1);
+
+        label_8 = new QLabel(centralWidget);
+        label_8->setObjectName(QStringLiteral("label_8"));
+        label_8->setMaximumSize(QSize(16777215, 5));
+
+        gridLayout_2->addWidget(label_8, 4, 1, 1, 1);
+
+        label_3 = new QLabel(centralWidget);
+        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_3, 0, 1, 1, 1);
+
+        open = new QPushButton(centralWidget);
+        open->setObjectName(QStringLiteral("open"));
+        open->setMinimumSize(QSize(120, 25));
+        open->setMaximumSize(QSize(120, 16777215));
+
+        gridLayout_2->addWidget(open, 3, 1, 1, 1);
+
+        is_press_finger = new QPushButton(centralWidget);
+        is_press_finger->setObjectName(QStringLiteral("is_press_finger"));
+        is_press_finger->setEnabled(false);
+        is_press_finger->setMinimumSize(QSize(0, 25));
+
+        gridLayout_2->addWidget(is_press_finger, 11, 1, 1, 1);
+
+        verify_1_1 = new QPushButton(centralWidget);
+        verify_1_1->setObjectName(QStringLiteral("verify_1_1"));
+        verify_1_1->setEnabled(false);
+        verify_1_1->setMinimumSize(QSize(0, 25));
+
+        gridLayout_2->addWidget(verify_1_1, 7, 1, 1, 1);
+
+        label_2 = new QLabel(centralWidget);
+        label_2->setObjectName(QStringLiteral("label_2"));
+        label_2->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_2, 1, 1, 1, 1);
+
+        get_live_image = new QPushButton(centralWidget);
+        get_live_image->setObjectName(QStringLiteral("get_live_image"));
+        get_live_image->setEnabled(false);
+        get_live_image->setMinimumSize(QSize(0, 25));
+
+        gridLayout_2->addWidget(get_live_image, 13, 2, 1, 1);
 
 
         horizontalLayout_3->addLayout(gridLayout_2);
@@ -397,16 +383,6 @@ public:
         label_4->setText(QApplication::translate("MainWindowDialog", "Result :", 0));
         result->setText(QApplication::translate("MainWindowDialog", "-- result, line 1 --\n"
 "-- result, line 2 --", 0));
-        close->setText(QApplication::translate("MainWindowDialog", "Close", 0));
-        verify_template->setText(QApplication::translate("MainWindowDialog", "Verify Template", 0));
-        label_6->setText(QString());
-        label_7->setText(QString());
-        label_8->setText(QString());
-        label_3->setText(QApplication::translate("MainWindowDialog", "Serial Port Number :", 0));
-        open->setText(QApplication::translate("MainWindowDialog", "Open", 0));
-        is_press_finger->setText(QApplication::translate("MainWindowDialog", "Is Pressed Finger", 0));
-        verify_1_1->setText(QApplication::translate("MainWindowDialog", "Verify (1:1)", 0));
-        label_2->setText(QApplication::translate("MainWindowDialog", "Baudrate :", 0));
         identify_template->setText(QApplication::translate("MainWindowDialog", "Identify Template", 0));
         get_user_count->setText(QApplication::translate("MainWindowDialog", "Get User Count", 0));
         baudrate->clear();
@@ -420,7 +396,6 @@ public:
         enroll->setText(QApplication::translate("MainWindowDialog", "Enroll", 0));
         get_raw_image->setText(QApplication::translate("MainWindowDialog", "Get Raw Image", 0));
         cancel->setText(QApplication::translate("MainWindowDialog", "Cancel", 0));
-        get_live_image->setText(QApplication::translate("MainWindowDialog", "Get Live Image", 0));
         label->setText(QApplication::translate("MainWindowDialog", "ID :", 0));
         set_database->setText(QApplication::translate("MainWindowDialog", "Set Database", 0));
         get_image->setText(QApplication::translate("MainWindowDialog", "Get Image", 0));
@@ -447,7 +422,16 @@ public:
         delete_id->setText(QApplication::translate("MainWindowDialog", "Delete ID", 0));
         set_template->setText(QApplication::translate("MainWindowDialog", "Set Template", 0));
         get_database->setText(QApplication::translate("MainWindowDialog", "Get Database", 0));
-        label_9->setText(QString());
+        close->setText(QApplication::translate("MainWindowDialog", "Close", 0));
+        verify_template->setText(QApplication::translate("MainWindowDialog", "Verify Template", 0));
+        label_6->setText(QString());
+        label_8->setText(QString());
+        label_3->setText(QApplication::translate("MainWindowDialog", "Serial Port Number :", 0));
+        open->setText(QApplication::translate("MainWindowDialog", "Open", 0));
+        is_press_finger->setText(QApplication::translate("MainWindowDialog", "Is Pressed Finger", 0));
+        verify_1_1->setText(QApplication::translate("MainWindowDialog", "Verify (1:1)", 0));
+        label_2->setText(QApplication::translate("MainWindowDialog", "Baudrate :", 0));
+        get_live_image->setText(QApplication::translate("MainWindowDialog", "Get Live Image", 0));
     } // retranslateUi
 
 };

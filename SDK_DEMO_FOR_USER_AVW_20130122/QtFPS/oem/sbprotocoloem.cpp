@@ -1,11 +1,9 @@
-///////////     Insert the code     ///////////
-#include "OEM.h"
+#include "sbprotocoloem.h"
+#include "oem/commbase.h"
 
-///////////////////////////////////////////////
-#define COMM_DEF_TIMEOUT 15000
-uint gCommTimeOut = COMM_DEF_TIMEOUT;
+#include <QDebug>
 
-ushort oemp_CalcChkSumOfCmdAckPkt(SB_OEM_PKT* pPkt) {
+ushort Oemp::calcChkSumOfCmdAckPkt(SB_OEM_PKT* pPkt) {
     ushort wChkSum = 0;
     uchar* pBuf = (uchar*)pPkt;
 
@@ -16,7 +14,7 @@ ushort oemp_CalcChkSumOfCmdAckPkt(SB_OEM_PKT* pPkt) {
 	return wChkSum;
 }
 
-ushort oemp_CalcChkSumOfDataPkt(uchar* pDataPkt, int nSize) {
+ushort Oemp::calcChkSumOfDataPkt(uchar* pDataPkt, int nSize) {
     ushort wChkSum = 0;
     uchar* pBuf = (uchar*)pDataPkt;
 	
@@ -27,7 +25,26 @@ ushort oemp_CalcChkSumOfDataPkt(uchar* pDataPkt, int nSize) {
 	return wChkSum;
 }
 
-int oemp_CheckCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt) {
+void Oemp::setCallback(void(*listener)(void*p), void *parameter) {
+    //m_listener = listener;
+    //m_parameter = parameter;
+    serial_port.setCallback(listener, parameter);
+}
+
+int Oemp::open(uint port, uint baudrate) {
+    if(serial_port.open(port, baudrate)) {
+        serial_port.setTimeout(15000);
+        qDebug() << "Returning 0";
+        return 0;
+    }
+    qDebug() << "Returning -1";
+    return -1;
+}
+int Oemp::close() {
+    return serial_port.close() ? 0: -1;
+}
+
+int Oemp::checkCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt) {
     if((pPkt->Head1 != STX1) ||  (pPkt->Head2 != STX2)) {
 		return PKT_HDR_ERR;
 	}
@@ -36,14 +53,14 @@ int oemp_CheckCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt) {
 		return PKT_DEV_ID_ERR;
     }
 
-    if(pPkt->wChkSum != oemp_CalcChkSumOfCmdAckPkt(pPkt)) {
+    if(pPkt->wChkSum != calcChkSumOfCmdAckPkt(pPkt)) {
 		return PKT_CHK_SUM_ERR;
     }
 
 	return 0;
 }
 
-int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam) {
+int Oemp::writeCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam) {
 	SB_OEM_PKT pkt;
 	int nSentBytes;
 
@@ -52,9 +69,9 @@ int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam) {
 	pkt.wDevId = wDevID;
 	pkt.wCmd = wCmdOrAck;
 	pkt.nParam = nParam;
-    pkt.wChkSum = oemp_CalcChkSumOfCmdAckPkt(&pkt);
+    pkt.wChkSum = calcChkSumOfCmdAckPkt(&pkt);
 
-    nSentBytes = comm_send((uchar*)&pkt, SB_OEM_PKT_SIZE, gCommTimeOut);
+    nSentBytes = serial_port.write((uchar*)&pkt, SB_OEM_PKT_SIZE);
 
     if(nSentBytes != SB_OEM_PKT_SIZE) {
         qDebug() << "oemp_SendCmdOrAck, returning PKT_COMM_ERR";
@@ -64,7 +81,7 @@ int oemp_SendCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam) {
 	return 0;
 }
 
-int oemp_ReceiveCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
+int Oemp::readCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
 	SB_OEM_PKT pkt;
 	int nReceivedBytes;
 		
@@ -73,11 +90,11 @@ int oemp_ReceiveCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
 		return PKT_PARAM_ERR;
 	}
 
-    //qDebug() << "trying to receive " << SB_OEM_PKT_SIZE << "bytes, with a timeout:" << gCommTimeOut;
+    qDebug() << "trying to receive " << SB_OEM_PKT_SIZE << "bytes";
 
-    nReceivedBytes = comm_recv((uchar*)&pkt, SB_OEM_PKT_SIZE, gCommTimeOut);
+    nReceivedBytes = serial_port.read((uchar*)&pkt, SB_OEM_PKT_SIZE);
 
-    //qDebug() << "finally received:" << nReceivedBytes;
+    qDebug() << "finally received:" << nReceivedBytes;
 
     if(nReceivedBytes != SB_OEM_PKT_SIZE) {
 		return PKT_COMM_ERR;
@@ -92,7 +109,7 @@ int oemp_ReceiveCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
 		return PKT_DEV_ID_ERR;
     }
 
-    if(pkt.wChkSum != oemp_CalcChkSumOfCmdAckPkt(&pkt)) {
+    if(pkt.wChkSum != calcChkSumOfCmdAckPkt(&pkt)) {
 		return PKT_CHK_SUM_ERR;
     }
 
@@ -102,7 +119,7 @@ int oemp_ReceiveCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
 	return 0;
 }
 
-int oemp_SendData(ushort wDevID, uchar* pBuf, int nSize) {
+int Oemp::write(ushort wDevID, uchar* pBuf, int nSize) {
     ushort wChkSum = 0;
     uchar Buf[4], *pCommBuf;
 	int nSentBytes;
@@ -115,8 +132,8 @@ int oemp_SendData(ushort wDevID, uchar* pBuf, int nSize) {
     Buf[1] = (uchar)STX4;
     *((ushort*)(&Buf[SB_OEM_HEADER_SIZE])) = wDevID;
 	
-	wChkSum = oemp_CalcChkSumOfDataPkt( Buf, SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE  );
-	wChkSum += oemp_CalcChkSumOfDataPkt( pBuf, nSize );
+    wChkSum = calcChkSumOfDataPkt(Buf, SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE);
+    wChkSum += calcChkSumOfDataPkt(pBuf, nSize);
 	
 	//nSentBytes = comm_send( Buf, SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE, gCommTimeOut  );
 	//if( nSentBytes != SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE )
@@ -136,7 +153,7 @@ int oemp_SendData(ushort wDevID, uchar* pBuf, int nSize) {
 	memcpy(pCommBuf+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE, pBuf, nSize);
     *(ushort*)(pCommBuf+nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE) = wChkSum;
 
-    nSentBytes = comm_send(pCommBuf, nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE, gCommTimeOut);
+    nSentBytes = serial_port.write(pCommBuf, nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE);
     if(nSentBytes != nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE) {
         if(pCommBuf) {
 			delete pCommBuf;
@@ -152,7 +169,7 @@ int oemp_SendData(ushort wDevID, uchar* pBuf, int nSize) {
 	return 0;
 }
 
-int oemp_ReceiveData(ushort wDevID, uchar* pBuf, int nSize) {
+int Oemp::read(ushort wDevID, uchar* pBuf, int nSize) {
     ushort wReceivedChkSum, wChkSum;
     uchar Buf[4], *pCommBuf;
 	int nReceivedBytes;
@@ -165,7 +182,7 @@ int oemp_ReceiveData(ushort wDevID, uchar* pBuf, int nSize) {
 
 	/*AVW modify*/
     pCommBuf = new uchar[nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE];
-    nReceivedBytes = comm_recv(pCommBuf, nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE, gCommTimeOut);
+    nReceivedBytes = serial_port.read(pCommBuf, nSize+SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE+SB_OEM_CHK_SUM_SIZE);
 
     qDebug() << "oemp_ReceiveData, nReceivedBytes=" << nReceivedBytes;
 
@@ -191,8 +208,8 @@ int oemp_ReceiveData(ushort wDevID, uchar* pBuf, int nSize) {
         return PKT_DEV_ID_ERR;
     }
 	
-    wChkSum = oemp_CalcChkSumOfDataPkt(Buf, SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE);
-    wChkSum += oemp_CalcChkSumOfDataPkt(pBuf, nSize);
+    wChkSum = calcChkSumOfDataPkt(Buf, SB_OEM_HEADER_SIZE+SB_OEM_DEV_ID_SIZE);
+    wChkSum += calcChkSumOfDataPkt(pBuf, nSize);
 	
     if(wChkSum != wReceivedChkSum) {
 		return PKT_CHK_SUM_ERR;

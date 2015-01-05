@@ -1,9 +1,15 @@
 #ifndef HANDLER_H
 #define HANDLER_H
 
+#include "helper.h"
+#include "oem/oem.h"
+
+#include <QDebug>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QObject>
 
-#include "helper.h"
+extern Oem oem;
 
 class LedLocker {
 public:
@@ -11,8 +17,9 @@ public:
     ~LedLocker();
 };
 
-class Handler : public QObject
-{
+void handlerUiPolling(void *parameter=NULL);
+
+class Handler : public QObject {
     Q_OBJECT
 
     Helper *ui;
@@ -20,7 +27,7 @@ class Handler : public QObject
 
 private:
     void setResult(const QString &line1, const QString &line2="");
-    void uiPolling();
+
 
 public:
     explicit Handler(QObject *parent = 0);
