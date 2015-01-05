@@ -1,5 +1,8 @@
 #include "helper.h"
 
+#include <QFileDialog>
+#include <QMessageBox>
+
 Helper::Helper() :
     image256(256, 256, QImage::Format_Indexed8),
     image320(320, 240, QImage::Format_Indexed8),
@@ -224,3 +227,147 @@ void Helper::saveLastImage(const QString &_filename) {
     }
 }
 
+void Helper::setResult(const QString &line1, const QString &line2) {
+    QString r = line1 + "\n" + line2;
+    qDebug() << "setResult:" << r;
+    result->setText(r);
+}
+
+int Helper::getComPort() {
+    QString text = serialPortNumber->currentText();
+    bool conv = true;
+    int p = text.toLower().toInt(&conv);
+    if (!conv) {
+        qDebug() << "Error while converting COM port text to integer!!!! using default value of 1";
+        p = 1;
+    }
+    return p;
+}
+
+int Helper::getComBaudrate() {
+    QString text = baudrate->currentText();
+    bool conv = true;
+    int b = text.toLower().toInt(&conv);
+    if (!conv) {
+        qDebug() << "Error while converting COM baudrate text to integer!!!! using default value of 9600";
+        b = 9600;
+    }
+    return b;
+}
+
+int Helper::getId() {
+    int i = id->value();
+    if (i < 0 || i > 199) {
+        qDebug() << "Id out of range!" << i << "; using nearest value";
+    }
+    return qMin(199, qMax(0, i));
+}
+
+bool Helper::confirm(const QString &message, const QString &title) {
+    int result = QMessageBox::warning(0,
+        title,
+        message,
+        QMessageBox::Ok | QMessageBox::Cancel
+    );
+
+    return (result == QMessageBox::Ok);
+}
+
+QString Helper::getOpenFilename(const QString &exts) {
+    return QFileDialog::getOpenFileName(
+        0,
+        QObject::tr("Open File"),
+        QObject::tr("."),
+        exts
+    );
+}
+
+QString Helper::getSaveFilename(const QString &exts, const QString &suggested) {
+    return QFileDialog::getSaveFileName(
+        0,
+        QObject::tr("Save File"),
+        suggested,
+        exts
+    );
+}
+
+qint64 Helper::writeAll(const QString &filename, uchar *buffer, uint size) {
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly)) {
+        qint64 written = 0;
+        while(written < size) {
+            qint64 w = file.write((char*)(buffer+written), size-written);
+            if (w < 0) {
+                break;
+            }
+            written += w;
+        }
+        file.close();
+        return written;
+    }
+    return -1;
+}
+
+qint64 Helper::readAll(const QString &filename, uchar *buffer, uint size) {
+    QFile file(filename);
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        qint64 read = 0;
+        while(read < size) {
+            qint64 r = file.read((char*)(buffer+read), size-read);
+            if(r < 0) {
+                break;
+            }
+            read += r;
+        }
+        file.close();
+        return read;
+    }
+    return -1;
+}
+
+QString Helper::formatSerialNumber(uchar *p) {
+    QString sn = "";
+    for(int i = 0; i < 16; i++) {
+        sn += (p[i] < 16 ? "0" : "") + QString::number(p[i], 16);
+        if(i == 7) {
+            sn += "-";
+        }
+    }
+    return sn.toUpper();
+}
+
+Params::Params(const QHash<QString,QString> &_map) :
+    map(_map)
+{
+}
+
+Params::Params() {
+
+}
+
+int Params::getInt(const QString &key, int _default) {
+    if(map.contains(key)) {
+        bool b = true;
+        int t = map[key].toInt(&b);
+        if (!b) {
+            return _default;
+        }
+        return t;
+    }
+    return _default;
+}
+Params& Params::setInt(const QString &key, int value) {
+    map[key] = QString::number(value);
+    return *this;
+}
+
+QString Params::getString(const QString &key, const QString &_default) {
+    if(map.contains(key)) {
+        return map[key];
+    }
+    return _default;
+}
+Params& Params::setString(const QString &key, const QString &value) {
+    map[key] = value;
+    return *this;
+}

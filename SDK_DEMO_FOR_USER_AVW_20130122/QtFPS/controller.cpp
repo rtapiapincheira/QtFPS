@@ -1,4 +1,4 @@
-#include "handler.h"
+#include "controller.h"
 
 #include "oem/oem.h"
 
@@ -13,69 +13,75 @@ LedLocker::~LedLocker() {
 }
 
 void handlerUiPolling(void *parameter) {
+    Q_UNUSED(parameter);
+#ifdef MODE_WINDOW
     qApp->processEvents();
-    //((Handler*)parameter)->handlerUiPolling();
+#endif
 }
 
-Handler::Handler(QObject *parent) :
+Controller::Controller(QObject *parent) :
     QObject(parent)
 {
 }
 
-void Handler::setResult(const QString &line1, const QString &line2) {
-    QString result = line1 + "\n" + line2;
-    qDebug() << "setResult:" << result;
-    ui->result->setText(result);
+void Controller::setResult(const QString &line1, const QString &line2) {
+    ui->setResult(line1, line2);
+    handlerUiPolling();
 }
 
-void Handler::setup(Helper *_ui) {
+void Controller::setup(Helper *_ui) {
     ui = _ui;
 
-    connect(ui->saveImageToFile, SIGNAL(clicked()), this, SLOT(handleSaveImageToFileClicked()));
-    connect(ui->open, SIGNAL(clicked()), this, SLOT(handleOpenClicked()));
-    connect(ui->close, SIGNAL(clicked()), this, SLOT(handleCloseClicked()));
-    connect(ui->enroll, SIGNAL(clicked()), this, SLOT(handleEnrollClicked()));
-    connect(ui->getUserCount, SIGNAL(clicked()), this, SLOT(handleGetUserCountClicked()));
-    connect(ui->verify, SIGNAL(clicked()), this, SLOT(handleVerifyClicked()));
-    connect(ui->deleteId, SIGNAL(clicked()), this, SLOT(handleDeleteIdClicked()));
-    connect(ui->identify, SIGNAL(clicked()), this, SLOT(handleIdentifyClicked()));
-    connect(ui->deleteAll, SIGNAL(clicked()), this, SLOT(handleDeleteAllClicked()));
-    connect(ui->verifyTemplate, SIGNAL(clicked()), this, SLOT(handleVerifyTemplateClicked()));
-    connect(ui->getTemplate, SIGNAL(clicked()), this, SLOT(handleGetTemplateClicked()));
-    connect(ui->identifyTemplate, SIGNAL(clicked()), this, SLOT(handleIdentifyTemplateClicked()));
-    connect(ui->setTemplate, SIGNAL(clicked()), this, SLOT(handleSetTemplateClicked()));
-    connect(ui->isPressedFinger, SIGNAL(clicked()), this, SLOT(handleIsPressedFingerClicked()));
-    connect(ui->getDatabase, SIGNAL(clicked()), this, SLOT(handleGetDatabaseClicked()));
-    connect(ui->getImage, SIGNAL(clicked()), this, SLOT(handleGetImageClicked()));
-    connect(ui->setDatabase, SIGNAL(clicked()), this, SLOT(handleSetDatabaseClicked()));
-    connect(ui->getRawImage, SIGNAL(clicked()), this, SLOT(handleGetRawImageClicked()));
-    connect(ui->cancel, SIGNAL(clicked()), this, SLOT(handleCancelClicked()));
-    connect(ui->getLiveImage, SIGNAL(clicked()), this, SLOT(handleGetLiveImageClicked()));
+    connect(ui->open, SIGNAL(clicked()), this, SLOT(__open()));
+    connect(ui->close, SIGNAL(clicked()), this, SLOT(__close()));
+
+    // Exclusive amongst them!
+    connect(ui->enroll, SIGNAL(clicked()), this, SLOT(__enroll()));
+    connect(ui->getUserCount, SIGNAL(clicked()), this, SLOT(__getUserCount()));
+    connect(ui->verify, SIGNAL(clicked()), this, SLOT(__verify()));
+    connect(ui->deleteId, SIGNAL(clicked()), this, SLOT(__deleteId()));
+    connect(ui->identify, SIGNAL(clicked()), this, SLOT(__identify()));
+    connect(ui->deleteAll, SIGNAL(clicked()), this, SLOT(__deleteAll()));
+    connect(ui->verifyTemplate, SIGNAL(clicked()), this, SLOT(__verifyTemplate()));
+    connect(ui->getTemplate, SIGNAL(clicked()), this, SLOT(__getTemplate()));
+    connect(ui->identifyTemplate, SIGNAL(clicked()), this, SLOT(__identifyTemplate()));
+    connect(ui->setTemplate, SIGNAL(clicked()), this, SLOT(__setTemplate()));
+    connect(ui->isPressedFinger, SIGNAL(clicked()), this, SLOT(__isPressedFinger()));
+    connect(ui->getDatabase, SIGNAL(clicked()), this, SLOT(__getDatabase()));
+    connect(ui->setDatabase, SIGNAL(clicked()), this, SLOT(__setDatabase()));
+
+    connect(ui->getImage, SIGNAL(clicked()), this, SLOT(__getImage()));
+    connect(ui->getRawImage, SIGNAL(clicked()), this, SLOT(__getRawImage()));
+    connect(ui->getLiveImage, SIGNAL(clicked()), this, SLOT(__getLiveImage()));
+
+    // Optional, in addition to three above
+    connect(ui->saveImageToFile, SIGNAL(clicked()), this, SLOT(__saveImageToFile()));
+
+    connect(ui->cancel, SIGNAL(clicked()), this, SLOT(__cancel()));
 }
 
-void Handler::handleSaveImageToFileClicked() {
+void Controller::__saveImageToFile() {
     qDebug() << "handleSaveImageToFile";
 
     QString suggested = QDateTime::currentDateTime().toString("yyyyMMddThhmmss.png");
 
-    QString m_strFilePath = QFileDialog::getSaveFileName(0,
-         tr("Save Image File"), suggested, tr("Image File (*.png)"));
-
-    if(m_strFilePath.isEmpty()) {
+    QString filename = ui->getSaveFilename(EXTENSION_IMAGE, suggested);
+    if(filename.isEmpty()) {
+        setResult("Save image canceled!");
         return;
     }
 
-    ui->saveLastImage(m_strFilePath);
+    ui->saveLastImage(filename);
 }
 
-void Handler::handleOpenClicked() {
+void Controller::__open() {
     qDebug() << "handleOpenClicked";
 
-    int port = ui->serialPortNumber->currentText().replace("COM","").toInt();
+    int port = ui->getComPort();
 
     qDebug() << "Opening port:" << port;
 
-    int baud = ui->baudrate->currentText().toInt();
+    int baud = ui->getComBaudrate();
     if(oem.openPort(port, baud) < 0){
         qDebug() << "Device is not connected to serial port.";
         return;
@@ -89,27 +95,18 @@ void Handler::handleOpenClicked() {
         return;
     }
 
-    uchar* p = oem.gDevInfo.DeviceSerialNumber;
-
-    QString sn = "";
-    for(int i = 0; i < 16; i++) {
-        sn += (p[i] < 16 ? "0" : "") + QString::number(p[i], 16);
-        if(i == 7) {
-            sn += "-";
-        }
-    }
-
     setResult(
-        QString("FirmwareVersion: %1, IsoAreaMaxSize: %2 KB\r\nDeviceSN: %3")
+        QString("FirmwareVersion: %1, IsoAreaMaxSize: %2 KB")
             .arg(QString::number(oem.gDevInfo.FirmwareVersion, 16))
-            .arg(oem.gDevInfo.IsoAreaMaxSize / 1024)
-            .arg(sn.toUpper())
+            .arg(oem.gDevInfo.IsoAreaMaxSize / 1024),
+        QString("DeviceSN: %1")
+            .arg(ui->formatSerialNumber(oem.gDevInfo.DeviceSerialNumber))
     );
 
     ui->disableOnConnected();
 }
 
-void Handler::handleCloseClicked() {
+void Controller::__close() {
     qDebug() << "handleCloseClicked";
 
     oem.closePort();
@@ -119,20 +116,18 @@ void Handler::handleCloseClicked() {
     ui->enableOnDisconnected();
 }
 
-void Handler::handleEnrollClicked() {
+void Controller::__enroll() {
     qDebug() << "handleEnrollClicked";
 
     LedLocker ll;
     Q_UNUSED(&ll);
 
-    int nID = ui->id->value();
+    int nID = ui->getId();
 
     if(oem.enrollStart(nID) < 0) {
         setResult("Communication error!");
         return;
     }
-
-    handlerUiPolling();
 
     if(oem.gwLastAck == NACK_INFO) {
         qDebug() << "handleEnrollClicked: error";
@@ -142,7 +137,6 @@ void Handler::handleEnrollClicked() {
 
     for(int i=1; i<=3; i++) {
         setResult(QString("Input finger %1!").arg(i));
-        handlerUiPolling();
 
         QString err;
         if(oem.utilCapturing(true, err) < 0) {
@@ -153,7 +147,6 @@ void Handler::handleEnrollClicked() {
         qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
         setResult("Processing fingerprint...");
-        handlerUiPolling();
 
         if(oem.enrollNth(nID, i) < 0) {
             setResult("Communication error!");
@@ -165,10 +158,9 @@ void Handler::handleEnrollClicked() {
             return;
         }
 
-        qint64 dt = (QDateTime::currentMSecsSinceEpoch() - ds);
+        qint64 dt = QDateTime::currentMSecsSinceEpoch() - ds;
 
         setResult("Take off finger, please ...");
-        handlerUiPolling();
 
         if(i<3) {
             while(true) {
@@ -187,14 +179,12 @@ void Handler::handleEnrollClicked() {
             }
         }
         setResult(QString("Process time: %1 ms").arg(dt));
-        handlerUiPolling();
     }
 
     setResult(QString("Enroll OK (ID = %1)!").arg(nID));
-    handlerUiPolling();
 }
 
-void Handler::handleGetUserCountClicked() {
+void Controller::__getUserCount() {
     qDebug() << "handleGetUserCountClicked";
 
     if(oem.enrollCount() < 0) {
@@ -209,10 +199,10 @@ void Handler::handleGetUserCountClicked() {
     setResult(QString("Enroll count = %1 !").arg(oem.gwLastAckParam));
 }
 
-void Handler::handleVerifyClicked() {
+void Controller::__verify() {
     qDebug() << "handleVerifyClicked";
 
-    int nID = ui->id->value();
+    int nID = ui->getId();
 
     if(oem.checkEnrolled(nID) < 0) {
         setResult("Communication error!");
@@ -227,11 +217,7 @@ void Handler::handleVerifyClicked() {
     LedLocker ll;
     Q_UNUSED(&ll);
 
-    setResult("");
-    handlerUiPolling();
-
     setResult("Input finger !");
-    handlerUiPolling();
 
     qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
@@ -242,7 +228,6 @@ void Handler::handleVerifyClicked() {
     }
 
     setResult("Processing fingerprint...");
-    handlerUiPolling();
 
     if(oem.verify(nID) < 0) {
         setResult("Communication error!");
@@ -257,18 +242,13 @@ void Handler::handleVerifyClicked() {
     setResult(QString("ID = %1 (MATCH!) : %2 ms").arg(nID).arg(QDateTime::currentMSecsSinceEpoch() - ds));
 }
 
-void Handler::handleDeleteIdClicked() {
+void Controller::__deleteId() {
     qDebug() << "handleDeleteIdClicked";
 
-    int nID = ui->id->value();
+    int nID = ui->getId();
 
-    int result = QMessageBox::warning(0,
-        "Confirmation",
-        QString("Are you sure to delete ID %1?").arg(nID),
-        QMessageBox::Ok | QMessageBox::Cancel
-    );
-
-    if (result == QMessageBox::Ok) {
+    QString message = QString("Are you sure to delete ID %1?").arg(nID);
+    if (ui->confirm(message)) {
         if(oem.deleteId(nID) < 0) {
             setResult("Communication error");
             return;
@@ -277,14 +257,13 @@ void Handler::handleDeleteIdClicked() {
             setResult(oem.utilError(oem.gwLastAckParam, nID));
             return;
         }
-
         setResult("Delete OK!");
-    } else if (result == QMessageBox::Cancel) {
+    } else {
         setResult("Canceled!");
     }
 }
 
-void Handler::handleIdentifyClicked() {
+void Controller::__identify() {
     qDebug() << "handleIdentifyClicked";
 
     if(oem.enrollCount() < 0) {
@@ -314,7 +293,6 @@ void Handler::handleIdentifyClicked() {
     qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
     setResult("Processing fingerprint...");
-    handlerUiPolling();
 
     if(oem.identify() < 0) {
         setResult("Communication error!");
@@ -328,16 +306,10 @@ void Handler::handleIdentifyClicked() {
     setResult(QString("ID = %1      : %2 ms").arg(oem.gwLastAckParam).arg(QDateTime::currentMSecsSinceEpoch() - ds));
 }
 
-void Handler::handleDeleteAllClicked() {
+void Controller::__deleteAll() {
     qDebug() << "handleDeleteAllClicked";
 
-    int result = QMessageBox::warning(0,
-        "Confirmation",
-        QString("Are you sure to delete all?"),
-        QMessageBox::Ok | QMessageBox::Cancel
-    );
-
-    if (result == QMessageBox::Ok) {
+    if (ui->confirm("Are you sure to delete all?")) {
         if(oem.deleteAll() < 0) {
             setResult("Communication error");
             return;
@@ -348,15 +320,15 @@ void Handler::handleDeleteAllClicked() {
         }
 
         setResult("Delete all OK!");
-    } else if (result == QMessageBox::Cancel) {
+    } else {
         setResult("Canceled!");
     }
 }
 
-void Handler::handleVerifyTemplateClicked() {
+void Controller::__verifyTemplate() {
     qDebug() << "handleVerifyTemplateClicked";
 
-    int nID = ui->id->value();
+    int nID = ui->getId();
 
     if(oem.checkEnrolled(nID) < 0) {
         setResult("Communication error!");
@@ -367,32 +339,19 @@ void Handler::handleVerifyTemplateClicked() {
         return;
     }
 
-    QString m_strFilePath = QFileDialog::getOpenFileName(0,
-         tr("Open Template File"), tr("."), tr("Template files(*.dat *.bin *.db)"));
-
-    if(m_strFilePath.isEmpty()) {
+    QString filename = ui->getOpenFilename(EXTENSION_TEMPLATE);
+    if(filename.isEmpty()) {
+        setResult("Open file canceled!");
         return;
     }
 
     qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
-    QFile m_File(m_strFilePath);
-    if (!m_File.open(QIODevice::ReadOnly)) {
+    qint64 currentRead = ui->readAll(filename, oem.gbyTemplate, FP_TEMPLATE_SIZE);
+    if (currentRead < 0) {
         setResult("Cannot open file for read!");
         return;
     }
-
-    // Read the file bit by bit until the end of it.
-    int currentRead = 0;
-    while(currentRead < FP_TEMPLATE_SIZE) {
-        int r = m_File.read((char*)oem.gbyTemplate+currentRead, FP_TEMPLATE_SIZE-currentRead);
-        if (r < 0) {
-            break;
-        }
-        currentRead += r;
-    }
-
-    m_File.close();
 
     if(currentRead != FP_TEMPLATE_SIZE) {
         setResult("Invalid size for read!");
@@ -411,10 +370,10 @@ void Handler::handleVerifyTemplateClicked() {
     setResult(QString("ID = %1      : %2 ms").arg(nID).arg(QDateTime::currentMSecsSinceEpoch()-ds));
 }
 
-void Handler::handleGetTemplateClicked() {
+void Controller::__getTemplate() {
     qDebug() << "handleGetTemplateClicked";
 
-    int nID = ui->id->value();
+    int nID = ui->getId();
 
     setResult(QString("Getting of %1th template...").arg(nID));
 
@@ -429,36 +388,17 @@ void Handler::handleGetTemplateClicked() {
 
     //////////////////////////////////////////////////////////////////////////
 
-    QString m_strFilePath = QFileDialog::getSaveFileName(
-        0,
-        tr("Template File"),
-        tr("."),
-        tr("Template Files (*.bin *.db *.dat)")
-    );
-    if(m_strFilePath.isEmpty()) {
-        setResult("Canceled!");
+    QString filename = ui->getSaveFilename(EXTENSION_TEMPLATE);
+    if(filename.isEmpty()) {
+        setResult("Open file anceled!");
         return;
     }
 
-    QFile m_File(m_strFilePath);
-
-    if(!m_File.open(QIODevice::WriteOnly)) {
+    qint64 written = ui->writeAll(filename, oem.gbyTemplate, FP_TEMPLATE_SIZE);
+    if (written < 0) {
         setResult("Cannot create file for write!");
         return;
     }
-
-
-    qint64 written = 0;
-    while (written < FP_TEMPLATE_SIZE) {
-        int w = m_File.write((char*)(oem.gbyTemplate+written), FP_TEMPLATE_SIZE-written);
-        if (w < 0){
-            break;
-        }
-        written += w;
-    }
-
-    m_File.close();
-
     if (written != FP_TEMPLATE_SIZE) {
         setResult("Error while writing file!");
         return;
@@ -469,7 +409,7 @@ void Handler::handleGetTemplateClicked() {
     setResult(QString("Get Template OK (ID = %1)!").arg(nID));
 }
 
-void Handler::handleIdentifyTemplateClicked() {
+void Controller::__identifyTemplate() {
     qDebug() << "handleIdentifyTemplateClicked";
 
     if(oem.enrollCount() < 0) {
@@ -486,44 +426,22 @@ void Handler::handleIdentifyTemplateClicked() {
         return;
     }
 
-    QString m_strFilePath = QFileDialog::getOpenFileName(
-        0,
-        tr("Template File"),
-        tr("."),
-        tr("Template Files (*.db *.dat *.bin)")
-    );
-    if(m_strFilePath.isEmpty()) {
-        setResult("Action canceled!");
+    QString filename = ui->getOpenFilename(EXTENSION_TEMPLATE);
+    if(filename.isEmpty()) {
+        setResult("Open file canceled!");
         return;
     }
 
     qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
-    QFile m_File;
-    if(!m_File.open(QIODevice::ReadOnly)) {
+    qint64 currentRead = ui->readAll(filename, oem.gbyTemplate, FP_TEMPLATE_SIZE);
+    if(currentRead < 0) {
         setResult("Cannot open file for read!");
         return;
     }
 
-    int nLength = m_File.size();
-    if(nLength != FP_TEMPLATE_SIZE) {
-        setResult("Invalid size for read!");
-        return;
-    }
-
-    int read = 0;
-    while (read < FP_TEMPLATE_SIZE) {
-        qint64 r = m_File.read((char*)(oem.gbyTemplate+read), FP_TEMPLATE_SIZE-read);
-        if (r < 0) {
-            break;
-        }
-        read += r;
-
-    }
-    m_File.close();
-
-    if (read != FP_TEMPLATE_SIZE) {
-        setResult("Error while reading the template file");
+    if(currentRead != FP_TEMPLATE_SIZE) {
+        setResult("Error while reading the file!");
         return;
     }
 
@@ -541,43 +459,26 @@ void Handler::handleIdentifyTemplateClicked() {
     setResult(QString("ID = %1      : %2 ms").arg(oem.gwLastAckParam).arg(QDateTime::currentMSecsSinceEpoch() - ds));
 }
 
-void Handler::handleSetTemplateClicked() {
+void Controller::__setTemplate() {
     qDebug() << "handleSetTemplateClicked";
 
-    int nID = ui->id->value();
+    int nID = ui->getId();
 
-        QString m_strFilePath = QFileDialog::getOpenFileName(
-            0,
-            tr("Template File"),
-            tr("."),
-            tr("Template Files (*.db *.bin *.dat)")
-        );
-        if(m_strFilePath.isEmpty()) {
-            setResult("Setting template canceled!");
-            return;
-        }
+    QString filename = ui->getOpenFilename(EXTENSION_TEMPLATE);
+    if(filename.isEmpty()) {
+        setResult("Setting template canceled!");
+        return;
+    }
 
-    QFile m_File(m_strFilePath);
-    if(!m_File.open(QIODevice::ReadOnly)) {
+    qint64 currentRead = ui->readAll(filename, oem.gbyTemplate, FP_TEMPLATE_SIZE);
+    if(currentRead < 0) {
         setResult("Cannot open file for read!");
         return;
     }
-
-    int nLength = m_File.size();
-    if(nLength != FP_TEMPLATE_SIZE ) {
+    if(currentRead != FP_TEMPLATE_SIZE ) {
         setResult("Invalid size for read!");
         return;
     }
-
-    int read = 0;
-    while(read < FP_TEMPLATE_SIZE) {
-        qint64 r = m_File.read((char*)(oem.gbyTemplate+read), FP_TEMPLATE_SIZE-read);
-        if (r < 0) {
-            break;
-        }
-        read += r;
-    }
-    m_File.close();
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -595,7 +496,7 @@ void Handler::handleSetTemplateClicked() {
     setResult(QString("Set Template OK (ID = %1)!").arg(nID));
 }
 
-void Handler::handleIsPressedFingerClicked() {
+void Controller::__isPressedFinger() {
     qDebug() << "handleIsPressedFingerClicked";
 
     LedLocker ll;
@@ -617,7 +518,7 @@ void Handler::handleIsPressedFingerClicked() {
     setResult("Finger is pressed!");
 }
 
-void Handler::handleGetDatabaseClicked() {
+void Controller::__getDatabase() {
     qDebug() << "handleGetDatabaseClicked";
 
     int nIndexBufPos = FP_TEMPLATE_SIZE * (FP_MAX_USERS+1);
@@ -644,7 +545,6 @@ void Handler::handleGetDatabaseClicked() {
     int nEnrollCount = 0;
     for (int i=0; i<FP_MAX_USERS; i++) {
         setResult(QString("Getting of %1th template...").arg(i));
-        handlerUiPolling();
 
         if(oem.getTemplate(i) < 0) {
              setResult("Communication error!");
@@ -669,36 +569,19 @@ void Handler::handleGetDatabaseClicked() {
     oem.getDatabaseEnd();
 
     //////////////////////////////////////////////////////////////////////////
-    QString m_strFilePath = QFileDialog::getSaveFileName(
-        0,
-        tr("Database File"),
-        tr("."),
-        tr("Database Files (*.dat *.bin *.db)")
-    );
-
-    if(m_strFilePath.isEmpty()) {
+    QString filename = ui->getSaveFilename(EXTENSION_DATABASE);
+    if(filename.isEmpty()) {
         setResult("File save canceled!");
         return;
     }
 
-    QFile m_File(m_strFilePath);
-    if(!m_File.open(QIODevice::WriteOnly)) {
+    qint64 currentWritten = ui->writeAll(filename, oem.gbyTemplateDB, FP_TEMPLATE_DB_SIZE);
+    if(currentWritten < 0) {
         setResult("Cannot create file for write!");
         return;
     }
 
-    qint64 written = 0;
-    while(written < FP_TEMPLATE_DB_SIZE) {
-        qint64 w = m_File.write((char*)(oem.gbyTemplateDB+written), FP_TEMPLATE_DB_SIZE-written);
-        if (w < 0) {
-            break;
-        }
-        written += w;
-    }
-
-    m_File.close();
-
-    if (written != FP_TEMPLATE_DB_SIZE) {
+    if (currentWritten != FP_TEMPLATE_DB_SIZE) {
         setResult("Error while saving the file!");
         return;
     }
@@ -708,14 +591,13 @@ void Handler::handleGetDatabaseClicked() {
     setResult(QString("Get Database OK (Enroll count = %1)!").arg(nEnrollCount));
 }
 
-void Handler::handleGetImageClicked() {
+void Controller::__getImage() {
     qDebug() << "handleGetImageClicked";
 
     LedLocker ll;
     Q_UNUSED(&ll);
 
     setResult("Input finger !");
-    handlerUiPolling();
 
     QString err;
     if(oem.utilCapturing(true, err) < 0) {
@@ -735,42 +617,26 @@ void Handler::handleGetImageClicked() {
     ui->saveImageToFile->setEnabled(true);
 }
 
-void Handler::handleSetDatabaseClicked() {
+void Controller::__setDatabase() {
     qDebug() << "handleSetDatabaseClicked";
 
     // Ask for a database filename!
-    QString m_strFilePath = QFileDialog::getOpenFileName(
-        0,
-        tr("Database File"),
-        tr("."),
-        tr("Database Files (*.db *.bin *.dat)")
-    );
-    if(m_strFilePath.isEmpty()) {
+    QString filename = ui->getOpenFilename(EXTENSION_DATABASE);
+    if(filename.isEmpty()) {
         return;
     }
 
-    QFile m_File(m_strFilePath);
-    if(!m_File.open(QIODevice::ReadOnly)) {
+    qint64 currentRead = ui->readAll(filename, oem.gbyTemplateDB, FP_TEMPLATE_DB_SIZE);
+    if(currentRead < 0) {
         setResult("Cannot open file for read!");
         return;
     }
 
     // Read the whole file!
-    int nLength = m_File.size();
-    int totalSize = FP_TEMPLATE_SIZE * (FP_MAX_USERS+1) + (FP_MAX_USERS+1);
-    if(nLength != totalSize) {
+    if(currentRead != FP_TEMPLATE_DB_SIZE) {
         setResult("Invalid size for read!");
         return;
     }
-    int read = 0;
-    while(read < totalSize) {
-        int r = m_File.read( (char*)(&oem.gbyTemplateDB[0] + read), totalSize-read);
-        if (r < 0) {
-            break;
-        }
-        read += r;
-    }
-    m_File.close();
 
     // Search the index of the first valid user!
     int nIndexBufPos = FP_TEMPLATE_SIZE * (FP_MAX_USERS+1);
@@ -795,7 +661,6 @@ void Handler::handleSetDatabaseClicked() {
         }
 
         setResult(QString("Adding of %1th template...").arg(i));
-        handlerUiPolling();
 
         memcpy(oem.gbyTemplate, &oem.gbyTemplateDB[i*FP_TEMPLATE_SIZE], FP_TEMPLATE_SIZE);
 
@@ -813,14 +678,13 @@ void Handler::handleSetDatabaseClicked() {
     setResult(QString("Set Database OK (Enroll count = %1)!").arg(nAddCount));
 }
 
-void Handler::handleGetRawImageClicked() {
+void Controller::__getRawImage() {
     qDebug() << "handleGetRawImageClicked";
 
     LedLocker ll;
     Q_UNUSED(&ll);
 
     setResult("Input finger !");
-    handlerUiPolling();
 
     QString err;
     if(oem.utilCapturing(true, err) < 0) {
@@ -840,13 +704,13 @@ void Handler::handleGetRawImageClicked() {
     ui->saveImageToFile->setEnabled(true);
 }
 
-void Handler::handleCancelClicked() {
+void Controller::__cancel() {
     qDebug() << "handleCancelClicked";
 
     bContinue = false;
 }
 
-void Handler::handleGetLiveImageClicked() {
+void Controller::__getLiveImage() {
     qDebug() << "handleGetLiveImageClicked";
 
     ui->disableOnLive();
@@ -857,7 +721,6 @@ void Handler::handleGetLiveImageClicked() {
     bContinue = true;
 
     setResult("Downloading Live Image ...");
-    handlerUiPolling();
 
     QString err;
 

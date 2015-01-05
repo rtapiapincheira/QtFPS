@@ -6,13 +6,6 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
-/*
-int comm_send(uchar* pbuf, uint nsize, int ntimeout);
-int comm_recv(uchar* pbuf, uint nsize, int ntimeout);
-bool comm_open_serial(int nComNumber, uint nComBaudRate);
-void comm_close();
-*/
-
 class CCommSerial {
 
 private:

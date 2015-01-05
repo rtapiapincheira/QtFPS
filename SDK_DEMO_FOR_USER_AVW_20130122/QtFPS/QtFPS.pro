@@ -4,9 +4,12 @@
 #
 #-------------------------------------------------
 
-QT       += core gui serialport
+QT += core serialport
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += gui
+QT += widgets
+
+#CONFIG += console
 
 TARGET   = QtFPS
 TEMPLATE = app
@@ -17,7 +20,7 @@ SOURCES += \
     main.cpp\
     mainwindow.cpp \
     helper.cpp \
-    handler.cpp \
+    controller.cpp \
     \
     oem/commbase.cpp \
     oem/oem.cpp \
@@ -26,7 +29,8 @@ SOURCES += \
 HEADERS += \
     mainwindow.h \
     helper.h \
-    handler.h \
+    controller.h \
+    config.h\
     \
     oem/commbase.h \
     oem/oem.h \

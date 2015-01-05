@@ -3,19 +3,19 @@
 
 #include <QMainWindow>
 #include "helper.h"
-#include "handler.h"
+#include "controller.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(Ui::MainWindowDialog *ui, Helper *h);
+    explicit MainWindow(Ui::MainWindowDialog *ui, Helper *h, Controller *c);
     ~MainWindow();
 
 private:
     Helper &ui;
-    Handler handler;
+    Controller &controller;
 };
 
 #endif // MAINWINDOW_H

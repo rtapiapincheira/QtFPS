@@ -1,16 +1,28 @@
-#include <QApplication>
+#include "config.h"
 
-#include "mainwindow.h"
+#ifdef MODE_WINDOW
+#   include <QApplication>
+#   include "mainwindow.h"
+#else
+#   include <QCoreApplication>
+#endif
+
 #include "helper.h"
 
 int main(int argc, char *argv[])
 {
+#ifdef MODE_WINDOW
     QApplication a(argc, argv);
 
     Ui::MainWindowDialog u;
-    Helper h;
+#else
+    QCoreApplication a(argc, argv);
+#endif
 
-    MainWindow w(&u, &h);
+    Helper h;
+    Controller c;
+
+    MainWindow w(&u, &h, &c);
     w.show();
 
     return a.exec();

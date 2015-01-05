@@ -2,19 +2,6 @@
 
 #include "oem/sbprotocoloem.h"
 
-/*
-uchar    gbyImg8bit[IMG8BIT_SIZE];
-uchar    gbyImgRaw[320*240];
-uchar    gbyTemplate[FP_TEMPLATE_SIZE];
-uchar    gbyTemplateDB[FP_TEMPLATE_DB_SIZE];
-
-ushort gwDevID = 1;
-ushort gwLastAck = 0;
-int gwLastAckParam = 0;
-
-devinfo gDevInfo;*/
-
-
 int Oem::commandRun(ushort wCmd, int nCmdParam) {
     if(oemp.writeCmdOrAck(gwDevID, wCmd, nCmdParam) < 0) {
         qDebug() << "returning OEM_COMM_ERR (if #1)";

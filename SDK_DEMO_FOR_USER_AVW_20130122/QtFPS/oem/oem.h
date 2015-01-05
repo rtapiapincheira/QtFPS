@@ -77,7 +77,7 @@ typedef struct _devinfo {
     uint FirmwareVersion;
     uint IsoAreaMaxSize;
     uchar DeviceSerialNumber[16];
-}/* __attribute__((packed))*/ devinfo;
+} __attribute__((packed)) devinfo;
 
 //////////////////////////////////////////////////////////////////////////
 #define FP_MAX_USERS        200

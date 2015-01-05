@@ -37,8 +37,6 @@ typedef struct {
 
 class Oemp {
 private:
-    static uint gCommTimeOut;
-
     static ushort calcChkSumOfCmdAckPkt(SB_OEM_PKT *pPkt);
     static ushort calcChkSumOfDataPkt(uchar* pDataPkt, int nSize);
 
