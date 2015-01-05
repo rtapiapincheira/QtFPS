@@ -30,7 +30,7 @@ bool CCommSerial::close() {
 int CCommSerial::sendData(uchar *buffer, uint nSize, uint dwTimeOut) {
     //qDebug() << "Sending data to open port," << nSize << "bytes";
 
-    int written = 0;
+    qint64 written = 0;
     while(written < nSize) {
         written += m_serialport.write((char*)(buffer+written), nSize-written);
         if ( ! m_serialport.waitForBytesWritten(dwTimeOut)) {

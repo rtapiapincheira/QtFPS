@@ -1,16 +1,32 @@
-#ifndef UIHELPER_H
-#define UIHELPER_H
+#ifndef HELPER_H
+#define HELPER_H
 
 #include "ui_mainwindow.h"
 
+#include <QDateTime>
 #include <QDebug>
+#include <QFile>
+#include <QGraphicsPixmapItem>
 #include <QMainWindow>
 
-class UiHelper {
-private:
+class Helper {
+public:
+    enum ImageType {
+        Image256,
+        Image320,
+        None
+    };
 
+private:
+    QImage image256;
+    QImage image320;
+
+    QGraphicsPixmapItem  *graphicsItem;
+    QGraphicsScene *scene;
+    ImageType lastType;
 
 public:
+
     QGraphicsView *canvas;
 
     QPushButton *saveImageToFile;
@@ -45,15 +61,20 @@ public:
     QPushButton *getLiveImage;
 
 public:
-    explicit UiHelper();
-    virtual ~UiHelper();
+    explicit Helper();
+    virtual ~Helper();
 
     void setup(Ui::MainWindowDialog *mw);
 
     void disableOnConnected();
     void enableOnDisconnected();
 
-    void drawImage(void *data, int x, int y, int w, int h);
+    void disableOnLive();
+    void enableOnLive();
+
+    void drawImage(void *data, ImageType type);
+
+    void saveLastImage(const QString &filename);
 };
 
-#endif // UIHELPER_H
+#endif // HELPER_H

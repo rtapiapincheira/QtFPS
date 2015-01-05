@@ -5,49 +5,49 @@
 #include "sbprotocoloem.h"
 
 enum {
-	CMD_NONE				= 0x00,
-	CMD_OPEN				= 0x01,
-	CMD_CLOSE				= 0x02,
-	CMD_USB_INTERNAL_CHECK	= 0x03,
-	CMD_CHANGE_BAUDRATE		= 0x04,
-	
-	CMD_CMOS_LED			= 0x12,
+    CMD_NONE                = 0x00,
+    CMD_OPEN                = 0x01,
+    CMD_CLOSE               = 0x02,
+    CMD_USB_INTERNAL_CHECK  = 0x03,
+    CMD_CHANGE_BAUDRATE     = 0x04,
 
-	CMD_ENROLL_COUNT		= 0x20,
-	CMD_CHECK_ENROLLED		= 0x21,
-	CMD_ENROLL_START		= 0x22,
-	CMD_ENROLL1				= 0x23,
-	CMD_ENROLL2				= 0x24,
-	CMD_ENROLL3				= 0x25,
-	CMD_IS_PRESS_FINGER		= 0x26,
-	
-	CMD_DELETE				= 0x40,
-	CMD_DELETE_ALL			= 0x41,
-	
-	CMD_VERIFY				= 0x50,
-	CMD_IDENTIFY			= 0x51,
-	CMD_VERIFY_TEMPLATE		= 0x52,
-	CMD_IDENTIFY_TEMPLATE	= 0x53,
-	
-	CMD_CAPTURE				= 0x60,
+    CMD_CMOS_LED            = 0x12,
 
-	CMD_GET_IMAGE			= 0x62,
-	CMD_GET_RAWIMAGE		= 0x63,
-	
-	CMD_GET_TEMPLATE		= 0x70,
-	CMD_ADD_TEMPLATE		= 0x71,
-	CMD_GET_DATABASE_START  = 0x72,
-	CMD_GET_DATABASE_END  	= 0x73,
-	
-	CMD_FW_UPDATE			= 0x80,
-	CMD_ISO_UPDATE			= 0x81,
-	
-	ACK_OK					= 0x30,
-	NACK_INFO				= 0x31,
+    CMD_ENROLL_COUNT        = 0x20,
+    CMD_CHECK_ENROLLED      = 0x21,
+    CMD_ENROLL_START        = 0x22,
+    CMD_ENROLL1             = 0x23,
+    CMD_ENROLL2             = 0x24,
+    CMD_ENROLL3             = 0x25,
+    CMD_IS_PRESS_FINGER     = 0x26,
+
+    CMD_DELETE              = 0x40,
+    CMD_DELETE_ALL          = 0x41,
+
+    CMD_VERIFY              = 0x50,
+    CMD_IDENTIFY            = 0x51,
+    CMD_VERIFY_TEMPLATE     = 0x52,
+    CMD_IDENTIFY_TEMPLATE   = 0x53,
+
+    CMD_CAPTURE             = 0x60,
+
+    CMD_GET_IMAGE           = 0x62,
+    CMD_GET_RAWIMAGE        = 0x63,
+
+    CMD_GET_TEMPLATE        = 0x70,
+    CMD_ADD_TEMPLATE        = 0x71,
+    CMD_GET_DATABASE_START  = 0x72,
+    CMD_GET_DATABASE_END    = 0x73,
+
+    CMD_FW_UPDATE           = 0x80,
+    CMD_ISO_UPDATE          = 0x81,
+
+    ACK_OK                  = 0x30,
+    NACK_INFO               = 0x31,
 };
 
 enum {
-		NACK_NONE				= 0x1000,
+        NACK_NONE                = 0x1000,
         NACK_TIMEOUT,
         NACK_INVALID_BAUDRATE,
         NACK_INVALID_POS,
@@ -59,17 +59,17 @@ enum {
         NACK_DB_IS_FULL,
         NACK_DB_IS_EMPTY,
         NACK_TURN_ERR,
-		NACK_BAD_FINGER,
-		NACK_ENROLL_FAILED,
-		NACK_IS_NOT_SUPPORTED,
-		NACK_DEV_ERR,
-		NACK_CAPTURE_CANCELED,
-		NACK_INVALID_PARAM,
-		NACK_FINGER_IS_NOT_PRESSED,
+        NACK_BAD_FINGER,
+        NACK_ENROLL_FAILED,
+        NACK_IS_NOT_SUPPORTED,
+        NACK_DEV_ERR,
+        NACK_CAPTURE_CANCELED,
+        NACK_INVALID_PARAM,
+        NACK_FINGER_IS_NOT_PRESSED,
 };
 
 enum {
-		OEM_NONE					= -2000,
+        OEM_NONE                    = -2000,
         OEM_COMM_ERR,
 };
 
@@ -77,22 +77,24 @@ typedef struct _devinfo {
     uint FirmwareVersion;
     uint IsoAreaMaxSize;
     uchar DeviceSerialNumber[16];
-} devinfo;
+} __attribute__((packed)) devinfo;
 
 //////////////////////////////////////////////////////////////////////////
-#define FP_MAX_USERS		200
-#define FP_TEMPLATE_SIZE	498
-#define EEPROM_SIZE			16
+#define FP_MAX_USERS        200
+#define FP_TEMPLATE_SIZE    498
+#define EEPROM_SIZE         16
+#define FP_TEMPLATE_DB_SIZE (FP_TEMPLATE_SIZE * (FP_MAX_USERS+1) + (FP_MAX_USERS+1))
 
-#define IMG8BIT_SIZE	256*256
+#define IMG8BIT_SIZE       256*256
 
-extern uchar	gbyImg8bit[IMG8BIT_SIZE];
-extern uchar	gbyImgRaw[320*240];
-extern uchar	gbyTemplate[FP_TEMPLATE_SIZE];
+extern uchar    gbyImg8bit[IMG8BIT_SIZE];
+extern uchar    gbyImgRaw[320*240];
+extern uchar    gbyTemplate[FP_TEMPLATE_SIZE];
+extern uchar    gbyTemplateDB[FP_TEMPLATE_DB_SIZE];
 
-extern ushort gwDevID;
-extern ushort gwLastAck;
-extern int  gwLastAckParam;
+extern ushort  gwDevID;
+extern ushort  gwLastAck;
+extern int     gwLastAckParam;
 extern devinfo gDevInfo;
 
 //////////////////////////////////////////////////////////////////////////
@@ -134,5 +136,8 @@ QString my_oem_error(int nack, int nPos);
 int my_oem_capturing(bool best, QString &err);
 int my_oem_downloading_image();
 int my_oem_loading_image(QString &err);
+int my_oem_loading_image_raw(QString &err);
+int my_oem_loading_image_live(QString &err);
+
 
 #endif

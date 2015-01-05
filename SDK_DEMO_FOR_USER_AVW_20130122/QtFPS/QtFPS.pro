@@ -16,8 +16,8 @@ RC_FILE += icons.rc
 SOURCES += \
     main.cpp\
     mainwindow.cpp \
-    uihelper.cpp \
-    uihandler.cpp \
+    helper.cpp \
+    handler.cpp \
     \
     oem/commbase.cpp \
     oem/oem.cpp \
@@ -25,8 +25,8 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.h \
-    uihelper.h \
-    uihandler.h \
+    helper.h \
+    handler.h \
     \
     oem/commbase.h \
     oem/oem.h \

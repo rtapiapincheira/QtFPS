@@ -1,9 +1,9 @@
-#ifndef UIHANDLER_H
-#define UIHANDLER_H
+#ifndef HANDLER_H
+#define HANDLER_H
 
 #include <QObject>
 
-#include "uihelper.h"
+#include "helper.h"
 
 class LedLocker {
 public:
@@ -11,21 +11,21 @@ public:
     ~LedLocker();
 };
 
-
-class UiHandler : public QObject
+class Handler : public QObject
 {
     Q_OBJECT
 
-    UiHelper *ui;
+    Helper *ui;
+    bool bContinue;
 
 private:
     void setResult(const QString &line1, const QString &line2="");
     void uiPolling();
 
 public:
-    explicit UiHandler(QObject *parent = 0);
+    explicit Handler(QObject *parent = 0);
 
-    void setup(UiHelper *_ui);
+    void setup(Helper *_ui);
 
 signals:
 
@@ -52,4 +52,4 @@ private slots:
     void handleGetLiveImageClicked();
 };
 
-#endif // UIHANDLER_H
+#endif // HANDLER_H
