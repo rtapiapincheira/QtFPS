@@ -1,39 +1,53 @@
 #include "oem.h"
 
-#include "oem/sbprotocoloem.h"
+#include "sbprotocoloem.h"
 
 int Oem::commandRun(ushort wCmd, int nCmdParam) {
-    if(oemp.writeCmdOrAck(gwDevID, wCmd, nCmdParam) < 0) {
-        qDebug() << "returning OEM_COMM_ERR (if #1)";
-        return OEM_COMM_ERR;
-    }
     int x;
-    if((x = oemp.readCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam)) < 0) {
-        qDebug() << "returning OEM_COMM_ERR (if #2), x =" << x;
+
+    if((x = oemp.writeCmdOrAck(gwDevID, wCmd, nCmdParam)) < 0) {
+#ifdef OUTPUT_DEBUG
+        qDebug() << "returning OEM_COMM_ERR (if #1), x =" << x;
+#endif
         return OEM_COMM_ERR;
     }
+
+    if((x = oemp.readCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam)) < 0) {
+#ifdef OUTPUT_DEBUG
+        qDebug() << "returning OEM_COMM_ERR (if #2), x =" << x;
+#endif
+        return OEM_COMM_ERR;
+    }
+#ifdef OUTPUT_DEBUG
     qDebug() << "returning 0 (OK)";
+#endif
     return 0;
 }
 
 Oem::Oem() :
     gwDevID(1),
     gwLastAck(0),
-    gwLastAckParam(0)
-{
+    gwLastAckParam(0),
 
+    m_listener(NULL),
+    m_parameter(NULL)
+{
 }
 
 void Oem::setCallback(void(*listener)(void*p), void *parameter) {
     m_listener = listener;
     m_parameter = parameter;
+
+    oemp.setCallback(listener, parameter);
 }
 
 int Oem::openPort(uint port, uint baudrate) {
     if(oemp.open(port, 9600) < 0 ||
         changeBaudrate(baudrate) < 0 ||
         oemp.open(port, baudrate) < 0){
+#ifdef OUTPUT_DEBUG
         qDebug() << "Device is not connected to serial port.";
+#endif
         return -1;
     }
     return 0;
@@ -41,7 +55,9 @@ int Oem::openPort(uint port, uint baudrate) {
 
 int Oem::closePort() {
     if(changeBaudrate(9600)<0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "Error while changing the baudrate before closing";
+#endif
         return -1;
     }
     return oemp.close();
@@ -66,7 +82,9 @@ int Oem::usbInternalCheck() {
 }
 
 int Oem::changeBaudrate(int nBaudrate) {
+#ifdef OUTPUT_DEBUG
     qDebug() << "changeBaudrate";
+#endif
     return commandRun(CMD_CHANGE_BAUDRATE, nBaudrate);
 }
 
@@ -89,14 +107,18 @@ int Oem::enrollStart(int nPos) {
 /*AVW*/
 int Oem::enrollNth(int nPos, int nTurn) {
     if (commandRun(CMD_ENROLL_START+nTurn, 0) < 0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "oem_enroll_nth: returning OEM_COMM_ERR";
+#endif
         return OEM_COMM_ERR;
     }
 
     if (nPos == -1 && nTurn == 3) {
         if(gwLastAck == ACK_OK) {
             if(oemp.read(gwDevID, &gbyTemplate[0], FP_TEMPLATE_SIZE) < 0) {
+#ifdef OUTPUT_DEBUG
                 qDebug() << "oem_enroll_nth: returning OEM_COMM_ERR";
+#endif
                 return OEM_COMM_ERR;
             }
         }
@@ -171,7 +193,9 @@ int Oem::getImage() {
         return OEM_COMM_ERR;
     }
 
+#ifdef OUTPUT_DEBUG
     qDebug() << "receiving" << sizeof(gbyImg256_tmp) << "," << sizeof(gbyImg256_2) << "bytes";
+#endif
 
     if(oemp.read(gwDevID, gbyImg256_tmp, sizeof(gbyImg256_tmp)) < 0) {
         return OEM_COMM_ERR;

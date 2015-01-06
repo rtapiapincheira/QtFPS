@@ -116,7 +116,7 @@ public:
         horizontalLayout_4->setContentsMargins(-1, 0, -1, -1);
         save_image_to_file = new QPushButton(centralWidget);
         save_image_to_file->setObjectName(QStringLiteral("save_image_to_file"));
-        save_image_to_file->setEnabled(false);
+        save_image_to_file->setEnabled(true);
         save_image_to_file->setMaximumSize(QSize(180, 16777215));
 
         horizontalLayout_4->addWidget(save_image_to_file);

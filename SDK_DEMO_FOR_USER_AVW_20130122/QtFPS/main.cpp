@@ -1,23 +1,12 @@
-#include "config.h"
+#include <QApplication>
 
-#ifdef MODE_WINDOW
-#   include <QApplication>
-#   include "mainwindow.h"
-#else
-#   include <QCoreApplication>
-#endif
-
+#include "mainwindow.h"
 #include "helper.h"
 
-int main(int argc, char *argv[])
-{
-#ifdef MODE_WINDOW
+int main(int argc, char **argv) {
     QApplication a(argc, argv);
 
     Ui::MainWindowDialog u;
-#else
-    QCoreApplication a(argc, argv);
-#endif
 
     Helper h;
     Controller c;

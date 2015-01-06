@@ -1,6 +1,8 @@
 #include "controller.h"
 
-#include "oem/oem.h"
+#include "oem.h"
+
+#include "config.h"
 
 Oem oem;
 
@@ -14,9 +16,9 @@ LedLocker::~LedLocker() {
 
 void handlerUiPolling(void *parameter) {
     Q_UNUSED(parameter);
-#ifdef MODE_WINDOW
+//#ifdef MODE_WINDOW
     qApp->processEvents();
-#endif
+//#endif
 }
 
 Controller::Controller(QObject *parent) :
@@ -32,10 +34,12 @@ void Controller::setResult(const QString &line1, const QString &line2) {
 void Controller::setup(Helper *_ui) {
     ui = _ui;
 
+    oem.setCallback(&handlerUiPolling, this);
+
+#ifdef MODE_WINDOW
     connect(ui->open, SIGNAL(clicked()), this, SLOT(__open()));
     connect(ui->close, SIGNAL(clicked()), this, SLOT(__close()));
 
-    // Exclusive amongst them!
     connect(ui->enroll, SIGNAL(clicked()), this, SLOT(__enroll()));
     connect(ui->getUserCount, SIGNAL(clicked()), this, SLOT(__getUserCount()));
     connect(ui->verify, SIGNAL(clicked()), this, SLOT(__verify()));
@@ -54,15 +58,13 @@ void Controller::setup(Helper *_ui) {
     connect(ui->getRawImage, SIGNAL(clicked()), this, SLOT(__getRawImage()));
     connect(ui->getLiveImage, SIGNAL(clicked()), this, SLOT(__getLiveImage()));
 
-    // Optional, in addition to three above
     connect(ui->saveImageToFile, SIGNAL(clicked()), this, SLOT(__saveImageToFile()));
 
     connect(ui->cancel, SIGNAL(clicked()), this, SLOT(__cancel()));
+#endif
 }
 
 void Controller::__saveImageToFile() {
-    qDebug() << "handleSaveImageToFile";
-
     QString suggested = QDateTime::currentDateTime().toString("yyyyMMddThhmmss.png");
 
     QString filename = ui->getSaveFilename(EXTENSION_IMAGE, suggested);
@@ -75,23 +77,34 @@ void Controller::__saveImageToFile() {
 }
 
 void Controller::__open() {
-    qDebug() << "handleOpenClicked";
-
     int port = ui->getComPort();
 
+#ifdef OUTPUT_DEBUG
     qDebug() << "Opening port:" << port;
+#endif
 
     int baud = ui->getComBaudrate();
+
+#ifdef OUTPUT_DEBUG
+    qDebug() << "Using baudrate:" << baud;
+#endif
+
     if(oem.openPort(port, baud) < 0){
+#ifdef OUTPUT_DEBUG
         qDebug() << "Device is not connected to serial port.";
+#endif
         return;
     }
 
     if(oem.openOem() < 0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "Cannot connect to the device !";
+#endif
         return;
     } if(oem.gwLastAck == NACK_INFO) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "Cannot connect to the device !";
+#endif
         return;
     }
 
@@ -107,18 +120,11 @@ void Controller::__open() {
 }
 
 void Controller::__close() {
-    qDebug() << "handleCloseClicked";
-
     oem.closePort();
-
-    setResult("");
-
     ui->enableOnDisconnected();
 }
 
 void Controller::__enroll() {
-    qDebug() << "handleEnrollClicked";
-
     LedLocker ll;
     Q_UNUSED(&ll);
 
@@ -130,7 +136,9 @@ void Controller::__enroll() {
     }
 
     if(oem.gwLastAck == NACK_INFO) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "handleEnrollClicked: error";
+#endif
         setResult(oem.utilError(oem.gwLastAckParam, nID));
         return;
     }
@@ -153,7 +161,9 @@ void Controller::__enroll() {
             return;
         }
         if(oem.gwLastAck == NACK_INFO) {
-            qDebug() << "this point!";
+#ifdef OUTPUT_DEBUG
+            qDebug() << "NACK_INFO error #1";
+#endif
             setResult(oem.utilError(oem.gwLastAckParam, 0));
             return;
         }
@@ -169,7 +179,9 @@ void Controller::__enroll() {
                     return;
                 }
                 if(oem.gwLastAck == NACK_INFO) {
-                    qDebug() << "this other point!";
+#ifdef OUTPUT_DEBUG
+                    qDebug() << "NACK_INFO error #2";
+#endif
                     setResult(oem.utilError(oem.gwLastAckParam, 0));
                     return;
                 }
@@ -185,8 +197,6 @@ void Controller::__enroll() {
 }
 
 void Controller::__getUserCount() {
-    qDebug() << "handleGetUserCountClicked";
-
     if(oem.enrollCount() < 0) {
         setResult("Communication error!");
         return;
@@ -200,8 +210,6 @@ void Controller::__getUserCount() {
 }
 
 void Controller::__verify() {
-    qDebug() << "handleVerifyClicked";
-
     int nID = ui->getId();
 
     if(oem.checkEnrolled(nID) < 0) {
@@ -223,7 +231,9 @@ void Controller::__verify() {
 
     QString err;
     if(oem.utilCapturing(false, err) < 0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "my_oem_capturing, err:" << err;
+#endif
         return;
     }
 
@@ -243,8 +253,6 @@ void Controller::__verify() {
 }
 
 void Controller::__deleteId() {
-    qDebug() << "handleDeleteIdClicked";
-
     int nID = ui->getId();
 
     QString message = QString("Are you sure to delete ID %1?").arg(nID);
@@ -264,8 +272,6 @@ void Controller::__deleteId() {
 }
 
 void Controller::__identify() {
-    qDebug() << "handleIdentifyClicked";
-
     if(oem.enrollCount() < 0) {
         setResult("Communication error!");
         return;
@@ -307,8 +313,6 @@ void Controller::__identify() {
 }
 
 void Controller::__deleteAll() {
-    qDebug() << "handleDeleteAllClicked";
-
     if (ui->confirm("Are you sure to delete all?")) {
         if(oem.deleteAll() < 0) {
             setResult("Communication error");
@@ -326,8 +330,6 @@ void Controller::__deleteAll() {
 }
 
 void Controller::__verifyTemplate() {
-    qDebug() << "handleVerifyTemplateClicked";
-
     int nID = ui->getId();
 
     if(oem.checkEnrolled(nID) < 0) {
@@ -371,8 +373,6 @@ void Controller::__verifyTemplate() {
 }
 
 void Controller::__getTemplate() {
-    qDebug() << "handleGetTemplateClicked";
-
     int nID = ui->getId();
 
     setResult(QString("Getting of %1th template...").arg(nID));
@@ -385,8 +385,6 @@ void Controller::__getTemplate() {
         setResult(oem.utilError(oem.gwLastAckParam, nID));
         return;
     }
-
-    //////////////////////////////////////////////////////////////////////////
 
     QString filename = ui->getSaveFilename(EXTENSION_TEMPLATE);
     if(filename.isEmpty()) {
@@ -410,8 +408,6 @@ void Controller::__getTemplate() {
 }
 
 void Controller::__identifyTemplate() {
-    qDebug() << "handleIdentifyTemplateClicked";
-
     if(oem.enrollCount() < 0) {
         setResult("Communication error!");
         return;
@@ -445,8 +441,6 @@ void Controller::__identifyTemplate() {
         return;
     }
 
-    //////////////////////////////////////////////////////////////////////////
-
     if(oem.identifyTemplate() < 0) {
         setResult("Communication error!");
         return;
@@ -460,8 +454,6 @@ void Controller::__identifyTemplate() {
 }
 
 void Controller::__setTemplate() {
-    qDebug() << "handleSetTemplateClicked";
-
     int nID = ui->getId();
 
     QString filename = ui->getOpenFilename(EXTENSION_TEMPLATE);
@@ -497,8 +489,6 @@ void Controller::__setTemplate() {
 }
 
 void Controller::__isPressedFinger() {
-    qDebug() << "handleIsPressedFingerClicked";
-
     LedLocker ll;
     Q_UNUSED(&ll);
 
@@ -519,8 +509,6 @@ void Controller::__isPressedFinger() {
 }
 
 void Controller::__getDatabase() {
-    qDebug() << "handleGetDatabaseClicked";
-
     int nIndexBufPos = FP_TEMPLATE_SIZE * (FP_MAX_USERS+1);
 
     if(oem.enrollCount() < 0) {
@@ -568,7 +556,6 @@ void Controller::__getDatabase() {
     }
     oem.getDatabaseEnd();
 
-    //////////////////////////////////////////////////////////////////////////
     QString filename = ui->getSaveFilename(EXTENSION_DATABASE);
     if(filename.isEmpty()) {
         setResult("File save canceled!");
@@ -586,14 +573,10 @@ void Controller::__getDatabase() {
         return;
     }
 
-    //////////////////////////////////////////////////////////////////////////
-
     setResult(QString("Get Database OK (Enroll count = %1)!").arg(nEnrollCount));
 }
 
 void Controller::__getImage() {
-    qDebug() << "handleGetImageClicked";
-
     LedLocker ll;
     Q_UNUSED(&ll);
 
@@ -601,25 +584,25 @@ void Controller::__getImage() {
 
     QString err;
     if(oem.utilCapturing(true, err) < 0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "my_oem_capturing: error";
+#endif
         setResult(err);
         return;
     }
     if(oem.utilLoadingImage(err) < 0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "my_oem_loading_image: error";
+#endif
         setResult(err);
         return;
     }
 
     ui->drawImage(oem.gbyImg8bit, Helper::Image256);
     setResult("Get Image OK !");
-
-    ui->saveImageToFile->setEnabled(true);
 }
 
 void Controller::__setDatabase() {
-    qDebug() << "handleSetDatabaseClicked";
-
     // Ask for a database filename!
     QString filename = ui->getOpenFilename(EXTENSION_DATABASE);
     if(filename.isEmpty()) {
@@ -679,8 +662,6 @@ void Controller::__setDatabase() {
 }
 
 void Controller::__getRawImage() {
-    qDebug() << "handleGetRawImageClicked";
-
     LedLocker ll;
     Q_UNUSED(&ll);
 
@@ -688,31 +669,29 @@ void Controller::__getRawImage() {
 
     QString err;
     if(oem.utilCapturing(true, err) < 0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "my_oem_capturing: error";
+#endif
         setResult(err);
         return;
     }
     if(oem.utilLoadingImageRaw(err) < 0) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "my_oem_loading_image_raw: error";
+#endif
         setResult(err);
         return;
     }
 
     ui->drawImage(oem.gbyImgRaw, Helper::Image320);
     setResult("Get Image OK !");
-
-    ui->saveImageToFile->setEnabled(true);
 }
 
 void Controller::__cancel() {
-    qDebug() << "handleCancelClicked";
-
     bContinue = false;
 }
 
 void Controller::__getLiveImage() {
-    qDebug() << "handleGetLiveImageClicked";
-
     ui->disableOnLive();
 
     LedLocker ll;
@@ -726,7 +705,9 @@ void Controller::__getLiveImage() {
 
     while(bContinue) {
         if (oem.utilLoadingImageLive(err) < 0) {
+#ifdef OUTPUT_DEBUG
             qDebug() << "my_oem_loading_image_live: error";
+#endif
             setResult(err);
             break;
         }

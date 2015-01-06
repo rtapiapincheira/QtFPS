@@ -1,14 +1,28 @@
 #include "helper.h"
 
-#include <QFileDialog>
-#include <QMessageBox>
+#ifdef MODE_WINDOW
+#  include <QFileDialog>
+#  include <QMessageBox>
+#endif
+
+QString Config::toString() {
+    return QString("filename:%1, id:%2, port:%3, baudrate:%4, action:%5")
+        .arg(filename)
+        .arg(id)
+        .arg(port)
+        .arg(baudrate)
+        .arg(action)
+    ;
+}
 
 Helper::Helper() :
     image256(256, 256, QImage::Format_Indexed8),
     image320(320, 240, QImage::Format_Indexed8),
 
+#ifdef MODE_WINDOW
     graphicsItem(NULL),
     scene(NULL),
+#endif
 
     lastType(None)
 {
@@ -19,15 +33,17 @@ Helper::Helper() :
 }
 
 Helper::~Helper() {
-
+#ifdef MODE_WINDOW
     if (graphicsItem) {
         delete graphicsItem;
     }
     if (scene) {
         delete scene;
     }
+#endif
 }
 
+#ifdef MODE_WINDOW
 void Helper::setup(Ui::MainWindowDialog *mw) {
     canvas = mw->canvas;
 
@@ -63,8 +79,10 @@ void Helper::setup(Ui::MainWindowDialog *mw) {
 
     getLiveImage = mw->get_live_image;
 }
+#endif
 
 void Helper::disableOnConnected() {
+#ifdef MODE_WINDOW
     serialPortNumber->setEnabled(false);
     baudrate->setEnabled(false);
 
@@ -89,9 +107,11 @@ void Helper::disableOnConnected() {
     getRawImage->setEnabled(true);
 
     getLiveImage->setEnabled(true);
+#endif
 }
 
 void Helper::enableOnDisconnected() {
+#ifdef MODE_WINDOW
     serialPortNumber->setEnabled(true);
     baudrate->setEnabled(true);
 
@@ -116,10 +136,11 @@ void Helper::enableOnDisconnected() {
     getRawImage->setEnabled(false);
 
     getLiveImage->setEnabled(false);
+#endif
 }
 
-
 void Helper::disableOnLive() {
+#ifdef MODE_WINDOW
     close->setEnabled(false);
 
     id->setEnabled(false);
@@ -142,9 +163,11 @@ void Helper::disableOnLive() {
     cancel->setEnabled(true);
 
     getLiveImage->setEnabled(false);
+#endif
 }
 
 void Helper::enableOnLive() {
+#ifdef MODE_WINDOW
     close->setEnabled(true);
 
     id->setEnabled(true);
@@ -167,6 +190,7 @@ void Helper::enableOnLive() {
     cancel->setEnabled(false);
 
     getLiveImage->setEnabled(true);
+#endif
 }
 
 void Helper::drawImage(void *data, ImageType type) {
@@ -192,10 +216,13 @@ void Helper::drawImage(void *data, ImageType type) {
         }
     }
 
+#ifdef MODE_WINDOW
     scene = canvas->scene();
 
     if (!scene) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "There's no scene!";
+#endif
         scene = new QGraphicsScene;
         canvas->setScene(scene);
     }
@@ -210,6 +237,7 @@ void Helper::drawImage(void *data, ImageType type) {
 
     graphicsItem = new QGraphicsPixmapItem(QPixmap::fromImage(*image));
     canvas->scene()->addItem(graphicsItem);
+#endif
 }
 
 void Helper::saveLastImage(const QString &_filename) {
@@ -223,47 +251,81 @@ void Helper::saveLastImage(const QString &_filename) {
     } else if (lastType == Image320) {
         image320.save(filename);
     } else {
+#ifdef OUTPUT_DEBUG
         qDebug() << "Error, cannot save last image because there's no such image";
+#endif
     }
 }
 
 void Helper::setResult(const QString &line1, const QString &line2) {
+
+#ifdef OUTPUT_DEBUG
     QString r = line1 + "\n" + line2;
     qDebug() << "setResult:" << r;
+#else
+    qDebug() << ">> " << line1.trimmed();
+    if (!line2.trimmed().isEmpty()) {
+        qDebug() << ">> " << line2.trimmed();
+    }
+#endif
+#ifdef MODE_WINDOW
     result->setText(r);
+#else
+    Q_UNUSED(line1);
+    Q_UNUSED(line2);
+#endif
 }
 
 int Helper::getComPort() {
-    QString text = serialPortNumber->currentText();
+#ifdef MODE_WINDOW
+    QString text = serialPortNumber->currentText().replace("COM", "");
     bool conv = true;
     int p = text.toLower().toInt(&conv);
     if (!conv) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "Error while converting COM port text to integer!!!! using default value of 1";
+#endif
         p = 1;
     }
     return p;
+#else
+    return consoleConfig.port;
+#endif
 }
 
 int Helper::getComBaudrate() {
+#ifdef MODE_WINDOW
     QString text = baudrate->currentText();
     bool conv = true;
     int b = text.toLower().toInt(&conv);
     if (!conv) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "Error while converting COM baudrate text to integer!!!! using default value of 9600";
+#endif
         b = 9600;
     }
     return b;
+#else
+    return consoleConfig.baudrate;
+#endif
 }
 
 int Helper::getId() {
+#ifdef MODE_WINDOW
     int i = id->value();
     if (i < 0 || i > 199) {
+#ifdef OUTPUT_DEBUG
         qDebug() << "Id out of range!" << i << "; using nearest value";
+#endif
     }
     return qMin(199, qMax(0, i));
+#else
+    return consoleConfig.id;
+#endif
 }
 
 bool Helper::confirm(const QString &message, const QString &title) {
+#ifdef MODE_WINDOW
     int result = QMessageBox::warning(0,
         title,
         message,
@@ -271,24 +333,44 @@ bool Helper::confirm(const QString &message, const QString &title) {
     );
 
     return (result == QMessageBox::Ok);
+#else
+#ifdef OUTPUT_DEBUG
+    qDebug() << "Because this is a console app, returning fixed value (" << message << ", " << title << ")";
+#endif
+    return true;
+#endif
 }
 
 QString Helper::getOpenFilename(const QString &exts) {
+#ifdef MODE_WINDOW
     return QFileDialog::getOpenFileName(
         0,
         QObject::tr("Open File"),
         QObject::tr("."),
         exts
     );
+#else
+#ifdef OUTPUT_DEBUG
+    qDebug() << "Because this is a console app, returning fixed value (" << exts << ")";
+#endif
+    return consoleConfig.filename;
+#endif
 }
 
 QString Helper::getSaveFilename(const QString &exts, const QString &suggested) {
+#ifdef MODE_WINDOW
     return QFileDialog::getSaveFileName(
         0,
         QObject::tr("Save File"),
         suggested,
         exts
     );
+#else
+#ifdef OUTPUT_DEBUG
+    qDebug() << "Because this is a console app, returning fixed value (" << exts << "," << suggested << ")";
+#endif
+    return consoleConfig.filename;
+#endif
 }
 
 qint64 Helper::writeAll(const QString &filename, uchar *buffer, uint size) {
@@ -334,40 +416,4 @@ QString Helper::formatSerialNumber(uchar *p) {
         }
     }
     return sn.toUpper();
-}
-
-Params::Params(const QHash<QString,QString> &_map) :
-    map(_map)
-{
-}
-
-Params::Params() {
-
-}
-
-int Params::getInt(const QString &key, int _default) {
-    if(map.contains(key)) {
-        bool b = true;
-        int t = map[key].toInt(&b);
-        if (!b) {
-            return _default;
-        }
-        return t;
-    }
-    return _default;
-}
-Params& Params::setInt(const QString &key, int value) {
-    map[key] = QString::number(value);
-    return *this;
-}
-
-QString Params::getString(const QString &key, const QString &_default) {
-    if(map.contains(key)) {
-        return map[key];
-    }
-    return _default;
-}
-Params& Params::setString(const QString &key, const QString &value) {
-    map[key] = value;
-    return *this;
 }

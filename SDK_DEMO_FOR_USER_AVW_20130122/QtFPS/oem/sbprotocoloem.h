@@ -2,7 +2,7 @@
 #define __SB_PROTOCOL_OEM_H__
 
 #include <QtGlobal>
-#include "oem/commbase.h"
+#include "commbase.h"
 
 // Header Of Cmd and Ack Packets
 #define STX1				0x55	//Header1 

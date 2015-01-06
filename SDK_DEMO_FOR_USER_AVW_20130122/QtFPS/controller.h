@@ -2,11 +2,10 @@
 #define HANDLER_H
 
 #include "helper.h"
-#include "oem/oem.h"
+#include "oem.h"
+
 #include "config.h"
-
 #include <QDebug>
-
 #include <QObject>
 
 extern Oem oem;

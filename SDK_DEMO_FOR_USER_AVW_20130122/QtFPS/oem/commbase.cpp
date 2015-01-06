@@ -19,7 +19,9 @@ void CCommSerial::setTimeout(uint dwTimeOut) {
 bool CCommSerial::open(int nPort, uint dwBaudrate) {
     if(m_serialport.isOpen()) {
         m_serialport.close();
+#ifdef OUTPUT_DEBUG
         qDebug() << "CComSerial::open already open, closing first";
+#endif
     }
 
     m_serialport.setPortName(QString("COM%1").arg(nPort));
@@ -29,7 +31,9 @@ bool CCommSerial::open(int nPort, uint dwBaudrate) {
     m_serialport.setStopBits(QSerialPort::OneStop);
 
     bool b = m_serialport.open(QIODevice::ReadWrite);
+#ifdef OUTPUT_DEBUG
     qDebug() << "CComSerial::open returning" << b;
+#endif
     return b;
 }
 
@@ -42,32 +46,41 @@ bool CCommSerial::close() {
 }
 
 int CCommSerial::write(uchar *buffer, uint nSize) {
-    //qDebug() << "Sending data to open port," << nSize << "bytes";
+#ifdef OUTPUT_DEBUG
+    qDebug() << "Sending data to open port," << nSize << "bytes";
+#endif
 
     qint64 written = 0;
     while(written < nSize) {
         written += m_serialport.write((char*)(buffer+written), nSize-written);
         if (!m_serialport.waitForBytesWritten(timeOut)) {
+#ifdef OUTPUT_DEBUG
             qDebug() << "Writing operation timed out, error while communicating";
+#endif
             break;
         }
         if (m_listener) {
             (*m_listener)(m_parameter);
         }
     }
-    //qDebug() << "written:" << written;
+#ifdef OUTPUT_DEBUG
+    qDebug() << "written:" << written;
+#endif
     return written;
 }
 
 int CCommSerial::read(uchar *buffer, uint nSize) {
-
+#ifdef OUTPUT_DEBUG
     qDebug() << "trying to read" << nSize << "bytes from open port";
+#endif
 
     qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
     uint read = 0;
     while (read < nSize && (QDateTime::currentMSecsSinceEpoch() - ds < timeOut)) {
-        //qDebug() << "Waiting some bytes";
+#ifdef OUTPUT_DEBUG
+        qDebug() << "Waiting some bytes";
+#endif
 
         // If no bytes, then wait
         if(!m_serialport.bytesAvailable()) {
@@ -85,26 +98,29 @@ int CCommSerial::read(uchar *buffer, uint nSize) {
         }
 
         if (m_serialport.bytesAvailable() > 0 && read < nSize) {
-            //qDebug() << "reading at most" << nSize-read << "bytes";
+#ifdef OUTPUT_DEBUG
+            qDebug() << "reading at most" << nSize-read << "bytes";
+#endif
             int r = m_serialport.read((char*) (buffer+read), nSize-read);
             read += r;
-            //qDebug() << "    ->> read" << r << "bytes from port, " << read << "/" << nSize;
+#ifdef OUTPUT_DEBUG
+            qDebug() << "    ->> read" << r << "bytes from port, " << read << "/" << nSize;
+#endif
             if (m_listener) {
                 (*m_listener)(m_parameter);
             }
         }
     }
 
+#ifdef OUTPUT_DEBUG
     qDebug() << "Total bytes read: " << read << "out of " << nSize;
-
-    /*
     QString g = "";
     for (int i = 0; i < read; i++) {
         g += " ";
         g += QString::number((uchar)buffer[i]);
     }
     qDebug() << "{" << g << "}";
-    */
+#endif
 
     return read;
 }

@@ -9,12 +9,13 @@ QT += core serialport
 QT += gui
 QT += widgets
 
-#CONFIG += console
-
 TARGET   = QtFPS
 TEMPLATE = app
 
 RC_FILE += icons.rc
+
+INCLUDEPATH += \
+    oem
 
 SOURCES += \
     main.cpp\
@@ -32,8 +33,10 @@ HEADERS += \
     controller.h \
     config.h\
     \
-    oem/commbase.h \
-    oem/oem.h \
-    oem/sbprotocoloem.h
+    commbase.h \
+    oem.h \
+    sbprotocoloem.h
 
 FORMS   += mainwindow.ui
+
+DEFINES += MODE_WINDOW

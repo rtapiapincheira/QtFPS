@@ -88,7 +88,7 @@
         <item>
          <widget class="QPushButton" name="save_image_to_file">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="maximumSize">
            <size>

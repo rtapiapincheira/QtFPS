@@ -1,21 +1,36 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#include "ui_mainwindow.h"
 #include "config.h"
 
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
+#include <QImage>
 
 #ifdef MODE_WINDOW
-#include <QGraphicsPixmapItem>
-#include <QMainWindow>
+#  include "ui_mainwindow.h"
+#  include <QGraphicsPixmapItem>
+#  include <QMainWindow>
 #endif
 
 #define EXTENSION_DATABASE "Database Files (*.db *.dat)"
 #define EXTENSION_TEMPLATE "Template Files (*.dat)"
 #define EXTENSION_IMAGE    "Image Files (*.png)"
+
+class Config {
+public:
+    uint port;
+    uint baudrate;
+
+    uint id;
+
+    QString filename;
+
+    int action;
+
+    QString toString();
+};
 
 class Helper {
 public:
@@ -25,15 +40,22 @@ public:
         None
     };
 
+    Config consoleConfig;
+
 private:
+
     QImage image256;
     QImage image320;
-
-    QGraphicsPixmapItem  *graphicsItem;
-    QGraphicsScene *scene;
     ImageType lastType;
 
+#ifdef MODE_WINDOW
+    QGraphicsPixmapItem  *graphicsItem;
+    QGraphicsScene *scene;
+#endif
+
 public:
+
+#ifdef MODE_WINDOW
     QGraphicsView *canvas;
     QPushButton *saveImageToFile;
     QLabel *result;
@@ -59,12 +81,15 @@ public:
     QPushButton *getRawImage;
     QPushButton *getLiveImage;
     QPushButton *cancel;
+#endif
 
 public:
     explicit Helper();
     virtual ~Helper();
 
+#ifdef MODE_WINDOW
     void setup(Ui::MainWindowDialog *mw);
+#endif
 
     void disableOnConnected();
     void enableOnDisconnected();
@@ -91,20 +116,5 @@ public:
 
     QString formatSerialNumber(uchar *serialNum);
 };
-
-class Params {
-private:
-    QHash<QString,QString> &map;
-
-public:
-    Params(const QHash<QString,QString> &_map);
-    Params();
-
-    int getInt(const QString &key, int _default=0);
-    Params &setInt(const QString &key, int value);
-
-    QString getString(const QString &key, const QString &_default=QString());
-    Params &setString(const QString &key, const QString &value);
-}
 
 #endif // HELPER_H
