@@ -122,6 +122,10 @@ int main(int argc, char **argv) {
     Controller c;
     c.setup(&h);
 
+    /* Note: we need to push the config into Helper h, because from there, those settings will be
+     * taken when Controller executes any of its slots (the switch below; controller takes the
+     * helper as an initialization parameter).
+     */
     h.consoleConfig = conf;
 
     c.__open();
@@ -144,7 +148,8 @@ int main(int argc, char **argv) {
     case 14:c.__getRawImage(); c.__saveImageToFile(); break;
     case 15:c.__getLiveImage(); break;
     }
+
     c.__close();
 
-    return 0;//a.exec();
+    return 0;
 }

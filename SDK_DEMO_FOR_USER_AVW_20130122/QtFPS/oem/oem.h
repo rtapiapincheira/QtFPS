@@ -4,6 +4,9 @@
 #include "commbase.h"
 #include "sbprotocoloem.h"
 
+/**
+ * All the different possible commands to be senf to the fingerpring, as stated in its datasheet.
+ */
 enum {
     CMD_NONE                = 0x00,
     CMD_OPEN                = 0x01,
@@ -46,6 +49,10 @@ enum {
     NACK_INFO               = 0x31,
 };
 
+/**
+ * All different possible acknowledge responses to be received from the fingerprint sensor, as
+ * stated by its datasheed.
+ */
 enum {
         NACK_NONE                = 0x1000,
         NACK_TIMEOUT,
@@ -68,18 +75,26 @@ enum {
         NACK_FINGER_IS_NOT_PRESSED,
 };
 
+/**
+ * Handy enum for passing erros at application level (the fingerprint does not use this enum).
+ */
 enum {
         OEM_NONE                    = -2000,
         OEM_COMM_ERR,
 };
 
+/**
+  * Holds some the information of the fingerprint sensor.
+  */
 typedef struct _devinfo {
     uint FirmwareVersion;
     uint IsoAreaMaxSize;
     uchar DeviceSerialNumber[16];
-} __attribute__((packed)) devinfo;
+}
+// TODO: add portable macros for specifying the alignment of structures.
+__attribute__((packed))
+devinfo;
 
-//////////////////////////////////////////////////////////////////////////
 #define FP_MAX_USERS        200
 #define FP_TEMPLATE_SIZE    498
 #define EEPROM_SIZE         16
@@ -87,20 +102,28 @@ typedef struct _devinfo {
 
 #define IMG8BIT_SIZE       256*256
 
+/**
+ * @brief The Oem class implements the high level communication with the fingerprint sensor, using
+ * its communication protocol (see Oemp class).
+ */
 class Oem {
 
 public:
-    uchar    gbyImg8bit[IMG8BIT_SIZE];
-    uchar    gbyImgRaw[320*240];
-    uchar    gbyTemplate[FP_TEMPLATE_SIZE];
-    uchar    gbyTemplateDB[FP_TEMPLATE_DB_SIZE];
+    uchar    gbyImg8bit[IMG8BIT_SIZE];          // Image data of a pre-processed image taken from the sensor (smaller but unaccurate)
+    uchar    gbyImgRaw[320*240];                // Image data of a raw image taken from the sensor           (bigger but accurate)
+    uchar    gbyTemplate[FP_TEMPLATE_SIZE];     // Holds the template (simplified fingerprint data) of just one fingerprint
+    uchar    gbyTemplateDB[FP_TEMPLATE_DB_SIZE];// Holds the templates of every fingerprint (200)
 
-    ushort  gwDevID;
-    ushort  gwLastAck;
-    int     gwLastAckParam;
-    devinfo gDevInfo;
+    ushort  gwDevID;        // Id of the fingerprint sensor (defaults to 1)
+    ushort  gwLastAck;      // Acnowledge response from the commucation protocol
+    int     gwLastAckParam; // Additional data for the acnowledge response
+    devinfo gDevInfo;       // Fingerprint factory information
 
 private:
+    /**
+     * @brief oemp implements the low level communication protocol (sends and reads packets of
+     * information using protocol specified in the datasheet).
+     */
     Oemp oemp;
 
     void (*m_listener)(void* param);

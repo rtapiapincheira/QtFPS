@@ -45,7 +45,7 @@ bool CCommSerial::close() {
     return false;
 }
 
-int CCommSerial::write(uchar *buffer, uint nSize) {
+qint64 CCommSerial::write(uchar *buffer, uint nSize) {
 #ifdef OUTPUT_DEBUG
     qDebug() << "Sending data to open port," << nSize << "bytes";
 #endif
@@ -69,7 +69,7 @@ int CCommSerial::write(uchar *buffer, uint nSize) {
     return written;
 }
 
-int CCommSerial::read(uchar *buffer, uint nSize) {
+qint64 CCommSerial::read(uchar *buffer, uint nSize) {
 #ifdef OUTPUT_DEBUG
     qDebug() << "trying to read" << nSize << "bytes from open port";
 #endif
