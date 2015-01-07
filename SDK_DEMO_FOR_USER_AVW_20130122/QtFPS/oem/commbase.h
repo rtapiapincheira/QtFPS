@@ -1,10 +1,14 @@
 #ifndef COMM_BASE_H
 #define COMM_BASE_H
 
+#include "config.h"
+
 #include <QtCore>
 
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
+#ifdef ENABLED_QT5
+#   include <QtSerialPort/QSerialPort>
+#   include <QtSerialPort/QSerialPortInfo>
+#endif
 
 /**
  * @brief The CCommSerial class abstracts the serial communication using an specific library for it.
@@ -24,13 +28,7 @@
 
 class CCommSerial {
 
-private:
-    /**
-     * @brief m_serialport specific mechanism for serial communication. Refer to the Qt
-     * documentation for specific details on its usage.
-     */
-    QSerialPort m_serialport;
-
+protected:
     /**
      * @brief timeOut time in milliseconds for the I/O operations to be considered failed (the other
      * endpoint not responding, for instance).
@@ -90,14 +88,14 @@ public:
      * @param dwBaudrate speed of the serial communication.
      * @return true if the device was open successfully, otherwise false.
      */
-    bool open(const QString &port, uint dwBaudrate);
+    virtual bool open(const QString &port, uint dwBaudrate) = 0;
 
     /**
      * @brief close closes this CCommSerial object, to disable I/O operations of the underlying
      * device.
      * @return true if the object was open and it got closed. If it was unopened, returns false.
      */
-    bool close();
+    virtual bool close() = 0;
 
     /**
      * @brief write sends bytes through the underlying device and reports a count of how many bytes
@@ -111,7 +109,7 @@ public:
      * error ocurred and the sending was aborted. If it's equal, it can be considered a successfull
      * operation.
      */
-    qint64 write(uchar *buffer, uint nSize);
+    virtual qint64 write(uchar *buffer, uint nSize) = 0;
 
     /**
      * @brief read receives bytes through the underlying device and reports a count of how many
@@ -125,7 +123,33 @@ public:
      * ocurred and the reading of the remaining bytes was aborted. If it's the same, it can be
      * considered a successfull operation.
      */
-    qint64 read(uchar *buffer, uint nSize);
+    virtual qint64 read(uchar *buffer, uint nSize) = 0;
 };
+
+// ###################### Specific implementations for serial communications #######################
+
+#ifdef ENABLED_QT5
+class QtCommSerial : public CCommSerial {
+    /**
+     * @brief m_serialport specific mechanism for serial communication. Refer to the Qt
+     * documentation for specific details on its usage.
+     */
+    QSerialPort m_serialport;
+
+public:
+    QtCommSerial();
+
+    virtual ~QtCommSerial();
+
+    virtual bool open(const QString &port, uint dwBaudrate);
+
+    virtual bool close();
+
+    virtual qint64 write(uchar *buffer, uint nSize);
+
+    virtual qint64 read(uchar *buffer, uint nSize);
+};
+#endif
+
 
 #endif // COMM_BASE_H

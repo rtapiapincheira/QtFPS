@@ -24,8 +24,9 @@ SOURCES += \
     controller.cpp \
     \
     oem/commbase.cpp \
+    oem/impl/commbase_qt.cpp \
     oem/oem.cpp \
-    oem/sbprotocoloem.cpp
+    oem/oemp.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -35,8 +36,9 @@ HEADERS += \
     \
     commbase.h \
     oem.h \
-    sbprotocoloem.h
+    oemp.h
 
 FORMS   += mainwindow.ui
 
 DEFINES += MODE_WINDOW
+DEFINES += ENABLED_QT5

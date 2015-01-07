@@ -64,7 +64,11 @@ private:
     /**
      * @brief serial_port communication object to send/receive bytes using serial communication.
      */
-    CCommSerial serial_port;
+#ifdef ENABLED_QT5
+    QtCommSerial serial_port;
+#else
+
+#endif
 
 public:
 

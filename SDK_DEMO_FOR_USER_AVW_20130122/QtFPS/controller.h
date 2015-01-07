@@ -35,7 +35,11 @@ public:
 
 signals:
 
-public slots:
+public
+#ifdef MODE_WINDOW
+    slots
+#endif
+    :
     void __saveImageToFile();
     void __open();
     void __close();

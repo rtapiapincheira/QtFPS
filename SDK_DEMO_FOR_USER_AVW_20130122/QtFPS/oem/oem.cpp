@@ -1,18 +1,18 @@
 #include "oem.h"
 
-#include "sbprotocoloem.h"
+#include "oemp.h"
 
 int Oem::commandRun(ushort wCmd, int nCmdParam) {
     int x;
 
-    if((x = oemp.writeCmdOrAck(gwDevID, wCmd, nCmdParam)) < 0) {
+    if((x = oemp.writeCmd(gwDevID, wCmd, nCmdParam)) < 0) {
 #ifdef OUTPUT_DEBUG
         qDebug() << "returning OEM_COMM_ERR (if #1), x =" << x;
 #endif
         return OEM_COMM_ERR;
     }
 
-    if((x = oemp.readCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam)) < 0) {
+    if((x = oemp.readAck(gwDevID, &gwLastAck, &gwLastAckParam)) < 0) {
 #ifdef OUTPUT_DEBUG
         qDebug() << "returning OEM_COMM_ERR (if #2), x =" << x;
 #endif
@@ -156,7 +156,7 @@ int Oem::verifyTemplate(int nPos) {
         if(oemp.write(gwDevID, &gbyTemplate[0], FP_TEMPLATE_SIZE) < 0) {
             return OEM_COMM_ERR;
         }
-        if(oemp.readCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
+        if(oemp.readAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
             return OEM_COMM_ERR;
         }
     }
@@ -172,7 +172,7 @@ int Oem::identifyTemplate() {
         if(oemp.write(gwDevID, &gbyTemplate[0], FP_TEMPLATE_SIZE) < 0) {
             return OEM_COMM_ERR;
         }
-        if(oemp.readCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
+        if(oemp.readAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
             return OEM_COMM_ERR;
         }
     }
@@ -269,7 +269,7 @@ int Oem::addTemplate(int nPos) {
         if(oemp.write(gwDevID, &gbyTemplate[0], FP_TEMPLATE_SIZE) < 0) {
             return OEM_COMM_ERR;
         }
-        if(oemp.readCmdOrAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
+        if(oemp.readAck(gwDevID, &gwLastAck, &gwLastAckParam) < 0) {
             return OEM_COMM_ERR;
         }
     }

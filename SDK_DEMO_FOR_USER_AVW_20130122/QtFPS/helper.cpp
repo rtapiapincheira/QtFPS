@@ -7,16 +7,6 @@
 #  include <QMessageBox>
 #endif
 
-QString Config::toString() {
-    return QString("filename:%1, id:%2, port:%3, baudrate:%4, action:%5")
-        .arg(filename)
-        .arg(id)
-        .arg(port)
-        .arg(baudrate)
-        .arg(action)
-    ;
-}
-
 Helper::Helper() :
     image256(256, 256, QImage::Format_Indexed8),
     image320(320, 240, QImage::Format_Indexed8),

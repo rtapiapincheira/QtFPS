@@ -18,20 +18,6 @@
 #define EXTENSION_TEMPLATE "Template Files (*.dat)"
 #define EXTENSION_IMAGE    "Image Files (*.png)"
 
-class Config {
-public:
-    QString port;
-    uint baudrate;
-
-    uint id;
-
-    QString filename;
-
-    int action;
-
-    QString toString();
-};
-
 class Helper {
 public:
     enum ImageType {

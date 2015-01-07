@@ -2,7 +2,7 @@
 #define __OEM_H_
 
 #include "commbase.h"
-#include "sbprotocoloem.h"
+#include "oemp.h"
 
 /**
  * All the different possible commands to be senf to the fingerpring, as stated in its datasheet.
