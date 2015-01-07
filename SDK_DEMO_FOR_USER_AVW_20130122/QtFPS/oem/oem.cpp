@@ -41,7 +41,7 @@ void Oem::setCallback(void(*listener)(void*p), void *parameter) {
     oemp.setCallback(listener, parameter);
 }
 
-int Oem::openPort(uint port, uint baudrate) {
+int Oem::openPort(const QString &port, uint baudrate) {
     if(oemp.open(port, 9600) < 0 ||
         changeBaudrate(baudrate) < 0 ||
         oemp.open(port, baudrate) < 0){
@@ -261,7 +261,7 @@ int Oem::getTemplate(int nPos) {
 }
 
 int Oem::addTemplate(int nPos) {
-    if(commandRun( CMD_ADD_TEMPLATE, nPos) < 0) {
+    if(commandRun(CMD_ADD_TEMPLATE, nPos) < 0) {
         return OEM_COMM_ERR;
     }
 

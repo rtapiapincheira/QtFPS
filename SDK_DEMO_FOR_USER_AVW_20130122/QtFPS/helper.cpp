@@ -1,5 +1,7 @@
 #include "helper.h"
 
+#include <QRegularExpression>
+
 #ifdef MODE_WINDOW
 #  include <QFileDialog>
 #  include <QMessageBox>
@@ -258,14 +260,14 @@ void Helper::saveLastImage(const QString &_filename) {
 }
 
 void Helper::setResult(const QString &line1, const QString &line2) {
-
-#ifdef OUTPUT_DEBUG
     QString r = line1 + "\n" + line2;
+#ifdef OUTPUT_DEBUG
     qDebug() << "setResult:" << r;
 #else
-    qDebug() << ">> " << line1.trimmed();
+    QTextStream ss(stdout);
+    ss << ">> " << line1.trimmed() << endl;
     if (!line2.trimmed().isEmpty()) {
-        qDebug() << ">> " << line2.trimmed();
+        ss << ">> " << line2.trimmed() << endl;
     }
 #endif
 #ifdef MODE_WINDOW
@@ -276,18 +278,9 @@ void Helper::setResult(const QString &line1, const QString &line2) {
 #endif
 }
 
-int Helper::getComPort() {
+QString Helper::getComPort() {
 #ifdef MODE_WINDOW
-    QString text = serialPortNumber->currentText().replace("COM", "");
-    bool conv = true;
-    int p = text.toLower().toInt(&conv);
-    if (!conv) {
-#ifdef OUTPUT_DEBUG
-        qDebug() << "Error while converting COM port text to integer!!!! using default value of 1";
-#endif
-        p = 1;
-    }
-    return p;
+    return serialPortNumber->currentText();
 #else
     return consoleConfig.port;
 #endif
@@ -334,6 +327,8 @@ bool Helper::confirm(const QString &message, const QString &title) {
 
     return (result == QMessageBox::Ok);
 #else
+    Q_UNUSED(message);
+    Q_UNUSED(title);
 #ifdef OUTPUT_DEBUG
     qDebug() << "Because this is a console app, returning fixed value (" << message << ", " << title << ")";
 #endif
@@ -350,6 +345,7 @@ QString Helper::getOpenFilename(const QString &exts) {
         exts
     );
 #else
+    Q_UNUSED(exts);
 #ifdef OUTPUT_DEBUG
     qDebug() << "Because this is a console app, returning fixed value (" << exts << ")";
 #endif
@@ -366,6 +362,8 @@ QString Helper::getSaveFilename(const QString &exts, const QString &suggested) {
         exts
     );
 #else
+    Q_UNUSED(exts);
+    Q_UNUSED(suggested);
 #ifdef OUTPUT_DEBUG
     qDebug() << "Because this is a console app, returning fixed value (" << exts << "," << suggested << ")";
 #endif

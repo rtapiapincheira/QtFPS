@@ -16,7 +16,7 @@ void CCommSerial::setTimeout(uint dwTimeOut) {
     timeOut = dwTimeOut;
 }
 
-bool CCommSerial::open(int nPort, uint dwBaudrate) {
+bool CCommSerial::open(const QString &port, uint dwBaudrate) {
     if(m_serialport.isOpen()) {
         m_serialport.close();
 #ifdef OUTPUT_DEBUG
@@ -24,7 +24,7 @@ bool CCommSerial::open(int nPort, uint dwBaudrate) {
 #endif
     }
 
-    m_serialport.setPortName(QString("COM%1").arg(nPort));
+    m_serialport.setPortName(port);
     m_serialport.setBaudRate(dwBaudrate, QSerialPort::AllDirections);
     m_serialport.setDataBits(QSerialPort::Data8);
     m_serialport.setParity(QSerialPort::NoParity);

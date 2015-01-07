@@ -20,7 +20,7 @@
 
 class Config {
 public:
-    uint port;
+    QString port;
     uint baudrate;
 
     uint id;
@@ -103,7 +103,7 @@ public:
 
     void setResult(const QString &line1, const QString &line2="");
 
-    int getComPort();
+    QString getComPort();
     int getComBaudrate();
     int getId();
 

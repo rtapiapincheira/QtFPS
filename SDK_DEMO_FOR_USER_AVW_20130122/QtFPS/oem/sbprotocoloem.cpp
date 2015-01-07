@@ -29,7 +29,7 @@ void Oemp::setCallback(void(*listener)(void*p), void *parameter) {
     serial_port.setCallback(listener, parameter);
 }
 
-int Oemp::open(uint port, uint baudrate) {
+int Oemp::open(const QString &port, uint baudrate) {
     if(serial_port.open(port, baudrate)) {
         serial_port.setTimeout(15000);
 #ifdef OUTPUT_DEBUG
@@ -62,14 +62,14 @@ int Oemp::checkCmdAckPkt(ushort wDevID, SB_OEM_PKT* pPkt) {
     return 0;
 }
 
-int Oemp::writeCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam) {
+int Oemp::writeCmd(ushort wDevID, ushort wCmd, uint nParam) {
     SB_OEM_PKT pkt;
     int nSentBytes;
 
     pkt.Head1 = (uchar)STX1;
     pkt.Head2 = (uchar)STX2;
     pkt.wDevId = wDevID;
-    pkt.wCmd = wCmdOrAck;
+    pkt.wCmd = wCmd;
     pkt.nParam = nParam;
     pkt.wChkSum = calcChkSumOfCmdAckPkt(&pkt);
 
@@ -85,11 +85,11 @@ int Oemp::writeCmdOrAck(ushort wDevID, ushort wCmdOrAck, uint nParam) {
     return 0;
 }
 
-int Oemp::readCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
+int Oemp::readAck(ushort wDevID, ushort* wAck, int* pnParam) {
     SB_OEM_PKT pkt;
     int nReceivedBytes;
 
-    if(!pwCmdOrAck || !pnParam) {
+    if(!wAck || !pnParam) {
 #ifdef OUTPUT_DEBUG
         qDebug() << "Parameter is null!" << (int)pwCmdOrAck << "," << (int)pnParam;
 #endif
@@ -125,7 +125,7 @@ int Oemp::readCmdOrAck(ushort wDevID, ushort* pwCmdOrAck, int* pnParam) {
         return PKT_CHK_SUM_ERR;
     }
 
-    *pwCmdOrAck = pkt.wCmd;
+    *wAck = pkt.wCmd;
     *pnParam = pkt.nParam;
 
     return 0;

@@ -8,11 +8,11 @@
 #include <QDebug>
 #include <QObject>
 
-extern Oem oem;
-
 class LedLocker {
+private:
+    Oem *oem;
 public:
-    LedLocker();
+    LedLocker(Oem *_oem);
     ~LedLocker();
 };
 
@@ -23,6 +23,7 @@ class Controller : public QObject {
 
     Helper *ui;
     bool bContinue;
+    Oem oem;
 
 private:
     void setResult(const QString &line1, const QString &line2="");

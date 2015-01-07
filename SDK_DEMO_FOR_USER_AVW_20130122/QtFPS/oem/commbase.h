@@ -85,12 +85,12 @@ public:
 
     /**
      * @brief open opens and prepares this CCommSerial object to perform I/O operations.
-     * @param nPort port of the device for connecting (in Windows environments, a COM2 port, should
-     * be specified with just a 2 number). TODO: change this to allow UNIX devices.
+     * @param port port of the device for connecting (in Windows environments, it's similar to COM1
+     * or COM2).
      * @param dwBaudrate speed of the serial communication.
      * @return true if the device was open successfully, otherwise false.
      */
-    bool open(int nPort, uint dwBaudrate);
+    bool open(const QString &port, uint dwBaudrate);
 
     /**
      * @brief close closes this CCommSerial object, to disable I/O operations of the underlying

@@ -37,7 +37,7 @@ void prepareParser(QCommandLineParser &parser) {
     parser.addHelpOption();
     parser.addVersionOption();
 
-    parser.addPositionalArgument("port", "Port for the serial connection(1, 2, etc.)");
+    parser.addPositionalArgument("port", "Port for the serial connection(COM1, /dev/tty2, etc.)");
     parser.addPositionalArgument("baudrate", "One of 9600, 19200, 38400, 57600 or 115200");
     parser.addPositionalArgument("action", "One of " + actions.join(", "));
     parser.addPositionalArgument("filename", "Name of the file (something.png)");
@@ -56,10 +56,7 @@ Config validateParser(QCommandLineParser &parser) {
     if (args.size() < 1) {
         parser.showHelp(1);
     }
-    int p = args[0].toInt(&state);
-    if (!state || p < 1) {
-        parser.showHelp(1);
-    }
+    QString p = args[0];
 
     // Baudrate parsing
     state = true;

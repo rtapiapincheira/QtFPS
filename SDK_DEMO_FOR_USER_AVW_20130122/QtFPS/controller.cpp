@@ -1,17 +1,15 @@
 #include "controller.h"
 
 #include "oem.h"
-
 #include "config.h"
 
-Oem oem;
-
-LedLocker::LedLocker() {
-    oem.cmosLed(true);
+LedLocker::LedLocker(Oem *_oem) {
+    oem = _oem;
+    oem->cmosLed(true);
 }
 
 LedLocker::~LedLocker() {
-    oem.cmosLed(false);
+    oem->cmosLed(false);
 }
 
 void handlerUiPolling(void *parameter) {
@@ -77,7 +75,7 @@ void Controller::__saveImageToFile() {
 }
 
 void Controller::__open() {
-    int port = ui->getComPort();
+    QString port = ui->getComPort();
 
 #ifdef OUTPUT_DEBUG
     qDebug() << "Opening port:" << port;
@@ -98,12 +96,12 @@ void Controller::__open() {
 
     if(oem.openOem() < 0) {
 #ifdef OUTPUT_DEBUG
-        qDebug() << "Cannot connect to the device !";
+        qDebug() << "Cannot connect to the device!";
 #endif
         return;
     } if(oem.gwLastAck == NACK_INFO) {
 #ifdef OUTPUT_DEBUG
-        qDebug() << "Cannot connect to the device !";
+        qDebug() << "Cannot connect to the device!";
 #endif
         return;
     }
@@ -125,7 +123,7 @@ void Controller::__close() {
 }
 
 void Controller::__enroll() {
-    LedLocker ll;
+    LedLocker ll(&oem);
     Q_UNUSED(&ll);
 
     int nID = ui->getId();
@@ -185,7 +183,7 @@ void Controller::__enroll() {
                     setResult(oem.utilError(oem.gwLastAckParam, 0));
                     return;
                 }
-                if(oem.gwLastAckParam != 0) {
+                if(oem.gwLastAckParam!= 0) {
                     break;
                 }
             }
@@ -206,7 +204,7 @@ void Controller::__getUserCount() {
         return;
     }
 
-    setResult(QString("Enroll count = %1 !").arg(oem.gwLastAckParam));
+    setResult(QString("Enroll count = %1!").arg(oem.gwLastAckParam));
 }
 
 void Controller::__verify() {
@@ -222,10 +220,10 @@ void Controller::__verify() {
         return;
     }
 
-    LedLocker ll;
+    LedLocker ll(&oem);
     Q_UNUSED(&ll);
 
-    setResult("Input finger !");
+    setResult("Input finger!");
 
     qint64 ds = QDateTime::currentMSecsSinceEpoch();
 
@@ -281,14 +279,14 @@ void Controller::__identify() {
     }
 
     if (oem.gwLastAckParam == 0) {
-        setResult("No user !");
+        setResult("No user!");
         return;
     }
 
-    LedLocker ll;
+    LedLocker ll(&oem);
     Q_UNUSED(&ll);
 
-    setResult("Input finger !");
+    setResult("Input finger!");
 
     QString err;
     if(oem.utilCapturing(false, err) < 0) {
@@ -355,7 +353,7 @@ void Controller::__verifyTemplate() {
         return;
     }
 
-    if(currentRead != FP_TEMPLATE_SIZE) {
+    if(currentRead!= FP_TEMPLATE_SIZE) {
         setResult("Invalid size for read!");
         return;
     }
@@ -397,7 +395,7 @@ void Controller::__getTemplate() {
         setResult("Cannot create file for write!");
         return;
     }
-    if (written != FP_TEMPLATE_SIZE) {
+    if (written!= FP_TEMPLATE_SIZE) {
         setResult("Error while writing file!");
         return;
     }
@@ -418,7 +416,7 @@ void Controller::__identifyTemplate() {
     }
 
     if(oem.gwLastAckParam == 0) {
-        setResult("No user !");
+        setResult("No user!");
         return;
     }
 
@@ -436,7 +434,7 @@ void Controller::__identifyTemplate() {
         return;
     }
 
-    if(currentRead != FP_TEMPLATE_SIZE) {
+    if(currentRead!= FP_TEMPLATE_SIZE) {
         setResult("Error while reading the file!");
         return;
     }
@@ -467,7 +465,7 @@ void Controller::__setTemplate() {
         setResult("Cannot open file for read!");
         return;
     }
-    if(currentRead != FP_TEMPLATE_SIZE ) {
+    if(currentRead!= FP_TEMPLATE_SIZE ) {
         setResult("Invalid size for read!");
         return;
     }
@@ -489,7 +487,7 @@ void Controller::__setTemplate() {
 }
 
 void Controller::__isPressedFinger() {
-    LedLocker ll;
+    LedLocker ll(&oem);
     Q_UNUSED(&ll);
 
     if(oem.isPressFinger() < 0){
@@ -500,7 +498,7 @@ void Controller::__isPressedFinger() {
         setResult(oem.utilError(oem.gwLastAckParam, 0));
         return;
     }
-    if(oem.gwLastAckParam != 0) {
+    if(oem.gwLastAckParam!= 0) {
         setResult("Finger is not pressed!");
         return;
     }
@@ -521,7 +519,7 @@ void Controller::__getDatabase() {
     }
 
     if (oem.gwLastAckParam == 0) {
-        setResult("No user !");
+        setResult("No user!");
         return;
     }
 
@@ -568,7 +566,7 @@ void Controller::__getDatabase() {
         return;
     }
 
-    if (currentWritten != FP_TEMPLATE_DB_SIZE) {
+    if (currentWritten!= FP_TEMPLATE_DB_SIZE) {
         setResult("Error while saving the file!");
         return;
     }
@@ -577,10 +575,10 @@ void Controller::__getDatabase() {
 }
 
 void Controller::__getImage() {
-    LedLocker ll;
+    LedLocker ll(&oem);
     Q_UNUSED(&ll);
 
-    setResult("Input finger !");
+    setResult("Input finger!");
 
     QString err;
     if(oem.utilCapturing(true, err) < 0) {
@@ -599,7 +597,7 @@ void Controller::__getImage() {
     }
 
     ui->drawImage(oem.gbyImg8bit, Helper::Image256);
-    setResult("Get Image OK !");
+    setResult("Get Image OK!");
 }
 
 void Controller::__setDatabase() {
@@ -616,7 +614,7 @@ void Controller::__setDatabase() {
     }
 
     // Read the whole file!
-    if(currentRead != FP_TEMPLATE_DB_SIZE) {
+    if(currentRead!= FP_TEMPLATE_DB_SIZE) {
         setResult("Invalid size for read!");
         return;
     }
@@ -631,7 +629,7 @@ void Controller::__setDatabase() {
     }
 
     if(j == FP_MAX_USERS) {
-        setResult("No user !");
+        setResult("No user!");
         return;
     }
     //////////////////////////////////////////////////////////////////////////
@@ -662,10 +660,10 @@ void Controller::__setDatabase() {
 }
 
 void Controller::__getRawImage() {
-    LedLocker ll;
+    LedLocker ll(&oem);
     Q_UNUSED(&ll);
 
-    setResult("Input finger !");
+    setResult("Input finger!");
 
     QString err;
     if(oem.utilCapturing(true, err) < 0) {
@@ -684,7 +682,7 @@ void Controller::__getRawImage() {
     }
 
     ui->drawImage(oem.gbyImgRaw, Helper::Image320);
-    setResult("Get Image OK !");
+    setResult("Get Image OK!");
 }
 
 void Controller::__cancel() {
@@ -694,7 +692,7 @@ void Controller::__cancel() {
 void Controller::__getLiveImage() {
     ui->disableOnLive();
 
-    LedLocker ll;
+    LedLocker ll(&oem);
     Q_UNUSED(&ll);
 
     bContinue = true;
