@@ -1,6 +1,7 @@
+#include "config.h"
 #include "oemp.h"
-#include "commbase.h"
 
+#include "commbase.h"
 #include <QDebug>
 
 ushort Oemp::calcChkSumOfCmdAckPkt(SB_OEM_PKT* pPkt) {

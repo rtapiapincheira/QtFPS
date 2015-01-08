@@ -1,6 +1,7 @@
-#ifndef __OEM_H_
-#define __OEM_H_
+#ifndef OEM_H
+#define OEM_H
 
+#include "config.h"
 #include "commbase.h"
 #include "oemp.h"
 
@@ -415,4 +416,4 @@ public:
     int utilLoadingImageLive(QString &err);
 };
 
-#endif
+#endif // OEM_H

@@ -1,8 +1,18 @@
-#ifndef __SB_PROTOCOL_OEM_H__
-#define __SB_PROTOCOL_OEM_H__
+#ifndef OEMP_H
+#define OEMP_H
 
 #include <QtGlobal>
+#include "config.h"
 #include "commbase.h"
+
+#ifdef QT_SERIAL_COMM
+#   include "commbase_qt.h"
+#endif
+#ifdef RS232_SERIAL_COMM
+#   include "commbase_rs232.h"
+#else
+
+#endif
 
 // Header Of Cmd and Ack Packets
 #define STX1				0x55	//Header1 
@@ -64,10 +74,11 @@ private:
     /**
      * @brief serial_port communication object to send/receive bytes using serial communication.
      */
-#ifdef ENABLED_QT5
+#ifdef QT_SERIAL_COMM
     QtCommSerial serial_port;
-#else
-
+#endif
+#ifdef RS232_SERIAL_COMM
+    Rs232CommSerial serial_port;
 #endif
 
 public:
@@ -160,4 +171,4 @@ public:
     int read(ushort wDevID, uchar* pBuf, int nSize);
 };
 
-#endif
+#endif // OEMP_H

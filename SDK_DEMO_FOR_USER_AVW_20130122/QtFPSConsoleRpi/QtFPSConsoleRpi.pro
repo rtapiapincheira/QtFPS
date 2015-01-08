@@ -14,30 +14,38 @@ TEMPLATE = app
 
 INCLUDEPATH += \
     ../QtFPS \
-    ../QtFPS/oem
+    ../QtFPS/oem \
+    ../QtFPS/oem/impl
 
 SOURCES += \
-    main.cpp# \
-#    ../QtFPSConsole/argsparser.cpp \
-#    \
-#    ../QtFPS/oem/commbase.cpp \
-#    ../QtFPS/oem/impl/commbase_qt.cpp \
-#    ../QtFPS/oem/oem.cpp \
-#    ../QtFPS/oem/oemp.cpp \
-#    \
-#    ../QtFPS/controller.cpp \
-#    ../QtFPS/helper.cpp
+    ../QtFPSConsole/main.cpp \
+    ../QtFPSConsole/argsparser.cpp \
+    ../QtFPSConsole/console_application.cpp \
+    \
+    ../QtFPS/oem/commbase.cpp \
+    ../QtFPS/oem/impl/commbase_qt.cpp \
+    ../QtFPS/oem/impl/commbase_rs232.cpp \
+    ../QtFPS/oem/oem.cpp \
+    ../QtFPS/oem/oemp.cpp \
+    \
+    ../QtFPS/controller.cpp \
+    ../QtFPS/helper.cpp
 
 HEADERS += \
     ../QtFPSConsole/argsparser.h \
+    ../QtFPSConsole/console_application.h \
     \
     ../QtFPS/oem/commbase.h \
+    ../QtFPS/oem/impl/commbase_qt.h \
+    ../QtFPS/oem/impl/commbase_rs232.h \
     ../QtFPS/oem/oem.h \
     ../QtFPS/oem/oemp.h \
     \
     ../QtFPS/config.h \
     ../QtFPS/controller.h \
     ../QtFPS/helper.h
+
+DEFINES += RS232_SERIAL_COMM
 
 #--------------------------------------------------------------------------------------------------#
 #                 Portable Serial communication library http://wjwwood.io/serial/                  #
@@ -63,6 +71,6 @@ HEADERS += \
 #                                   http://www.teuniz.net/RS-232/                                  #
 #--------------------------------------------------------------------------------------------------#
 
-INCLUDEPATH += RS232
-HEADERS     += RS232/rs232.h
-SOURCES     += RS232/rs232.c
+INCLUDEPATH += ../QtFPS/RS232
+HEADERS     += ../QtFPS/RS232/rs232.h
+SOURCES     += ../QtFPS/RS232/rs232.c

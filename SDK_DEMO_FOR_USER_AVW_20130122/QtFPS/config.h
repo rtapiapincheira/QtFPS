@@ -28,7 +28,8 @@
   * undefined, provide a proper Qt4 code replacement instead.
   */
 //#define ENABLED_QT5
-
+//#define QT_SERIAL_COMM
+//#define RS232_SERIAL_COMM
 
 class Config {
 public:

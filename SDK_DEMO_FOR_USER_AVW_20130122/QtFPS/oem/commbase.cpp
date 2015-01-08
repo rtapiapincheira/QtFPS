@@ -1,4 +1,4 @@
-#include "oem.h"
+#include "commbase.h"
 
 CCommSerial::CCommSerial() {
 }

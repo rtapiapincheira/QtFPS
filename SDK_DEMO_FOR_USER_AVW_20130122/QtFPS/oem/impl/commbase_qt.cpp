@@ -1,8 +1,8 @@
 #include "config.h"
 
-#ifdef ENABLED_QT5
+#ifdef QT_SERIAL_COMM
 
-#include "oem.h"
+#include "commbase_qt.h"
 
 QtCommSerial::QtCommSerial() {
 }
@@ -120,4 +120,4 @@ qint64 QtCommSerial::read(uchar *buffer, uint nSize) {
     return read;
 }
 
-#endif // ENABLED_QT5
+#endif // QT_SERIAL_COMM

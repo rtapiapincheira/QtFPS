@@ -15,7 +15,8 @@ TEMPLATE = app
 RC_FILE += icons.rc
 
 INCLUDEPATH += \
-    oem
+    oem \
+    oem/impl
 
 SOURCES += \
     main.cpp\
@@ -25,6 +26,7 @@ SOURCES += \
     \
     oem/commbase.cpp \
     oem/impl/commbase_qt.cpp \
+    oem/impl/commbase_rs232.cpp \
     oem/oem.cpp \
     oem/oemp.cpp
 
@@ -34,11 +36,23 @@ HEADERS += \
     controller.h \
     config.h\
     \
-    commbase.h \
-    oem.h \
-    oemp.h
+    oem/commbase.h \
+    oem/impl/commbase_qt.h \
+    oem/impl/commbase_rs232.h \
+    oem/oem.h \
+    oem/oemp.h
 
 FORMS   += mainwindow.ui
 
 DEFINES += MODE_WINDOW
 DEFINES += ENABLED_QT5
+DEFINES += QT_SERIAL_COMM
+#DEFINES += RS232_SERIAL_COMM
+
+#--------------------------------------------------------------------------------------------------#
+#                                   http://www.teuniz.net/RS-232/                                  #
+#--------------------------------------------------------------------------------------------------#
+
+INCLUDEPATH += RS232
+HEADERS     += RS232/rs232.h
+SOURCES     += RS232/rs232.c

@@ -2,13 +2,7 @@
 #define COMM_BASE_H
 
 #include "config.h"
-
 #include <QtCore>
-
-#ifdef ENABLED_QT5
-#   include <QtSerialPort/QSerialPort>
-#   include <QtSerialPort/QSerialPortInfo>
-#endif
 
 /**
  * @brief The CCommSerial class abstracts the serial communication using an specific library for it.
@@ -125,31 +119,5 @@ public:
      */
     virtual qint64 read(uchar *buffer, uint nSize) = 0;
 };
-
-// ###################### Specific implementations for serial communications #######################
-
-#ifdef ENABLED_QT5
-class QtCommSerial : public CCommSerial {
-    /**
-     * @brief m_serialport specific mechanism for serial communication. Refer to the Qt
-     * documentation for specific details on its usage.
-     */
-    QSerialPort m_serialport;
-
-public:
-    QtCommSerial();
-
-    virtual ~QtCommSerial();
-
-    virtual bool open(const QString &port, uint dwBaudrate);
-
-    virtual bool close();
-
-    virtual qint64 write(uchar *buffer, uint nSize);
-
-    virtual qint64 read(uchar *buffer, uint nSize);
-};
-#endif
-
 
 #endif // COMM_BASE_H
