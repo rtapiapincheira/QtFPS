@@ -1,7 +1,5 @@
 #include "helper.h"
 
-#include <QRegularExpression>
-
 #ifdef MODE_WINDOW
 #  include <QFileDialog>
 #  include <QMessageBox>
