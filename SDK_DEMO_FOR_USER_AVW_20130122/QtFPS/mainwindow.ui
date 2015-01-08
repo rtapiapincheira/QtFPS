@@ -448,6 +448,11 @@
           <string>COM32</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>/dev/tty.usbserial-A6026R24</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="9" column="2">

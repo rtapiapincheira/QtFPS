@@ -38,7 +38,7 @@
 
 
 
-#if defined(__linux__) || defined(__FreeBSD__)   /* Linux & FreeBSD */
+#if defined(__linux__) || defined(__FreeBSD__)  || defined(__APPLE__)  /* Linux & FreeBSD */
 
 
 int Cport[99],
@@ -103,6 +103,7 @@ int RS232_OpenComport(const char *port_name, int comport_number, int baudrate, c
                    break;
     case  115200 : baudr = B115200;
                    break;
+/*
     case  230400 : baudr = B230400;
                    break;
     case  460800 : baudr = B460800;
@@ -129,6 +130,7 @@ int RS232_OpenComport(const char *port_name, int comport_number, int baudrate, c
                    break;
     case 4000000 : baudr = B4000000;
                    break;
+*/
     default      : printf("invalid baudrate\n");
                    return(1);
                    break;
