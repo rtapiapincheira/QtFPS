@@ -10,11 +10,15 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
+/**
+ * @brief The QtCommSerial class wraps the serial communication using the provided QtSerialPort
+ * class which is available from Qt5.0 and above.
+ *
+ * This class implements the CCommSerial interface, see CCommSerial for more information on the
+ * contract of this class.
+ */
 class QtCommSerial : public CCommSerial {
-    /**
-     * @brief m_serialport specific mechanism for serial communication. Refer to the Qt
-     * documentation for specific details on its usage.
-     */
+
     QSerialPort m_serialport;
 
 public:
