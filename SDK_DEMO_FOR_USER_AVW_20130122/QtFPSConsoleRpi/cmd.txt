@@ -1,0 +1,1 @@
+./QtFPSConsoleRpi /dev/ttyUSB0 115200 getImage rpi.png 1
