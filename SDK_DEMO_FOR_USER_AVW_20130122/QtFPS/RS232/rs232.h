@@ -46,7 +46,7 @@ extern "C" {
 
 
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 
 #include <termios.h>
 #include <sys/ioctl.h>
