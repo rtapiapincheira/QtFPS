@@ -13,37 +13,37 @@ CONFIG  -= app_bundle
 TEMPLATE = app
 
 INCLUDEPATH += \
-    ../QtFPS \
-    ../QtFPS/oem \
-    ../QtFPS/oem/impl
+    ../QtFPSGui \
+    ../QtFPSGui/oem \
+    ../QtFPSGui/oem/impl
 
 SOURCES += \
     main.cpp \
     argsparser.cpp \
     console_application.cpp \
     \
-    ../QtFPS/oem/commbase.cpp \
-    ../QtFPS/oem/impl/commbase_qt.cpp \
-    ../QtFPS/oem/impl/commbase_rs232.cpp \
-    ../QtFPS/oem/oem.cpp \
-    ../QtFPS/oem/oemp.cpp \
+    ../QtFPSGui/oem/commbase.cpp \
+    ../QtFPSGui/oem/impl/commbase_qt.cpp \
+    ../QtFPSGui/oem/impl/commbase_rs232.cpp \
+    ../QtFPSGui/oem/oem.cpp \
+    ../QtFPSGui/oem/oemp.cpp \
     \
-    ../QtFPS/controller.cpp \
-    ../QtFPS/helper.cpp
+    ../QtFPSGui/controller.cpp \
+    ../QtFPSGui/helper.cpp
 
 HEADERS += \
     argsparser.h \
     console_application.h \
     \
-    ../QtFPS/oem/commbase.h \
-    ../QtFPS/oem/impl/commbase_qt.h \
-    ../QtFPS/oem/impl/commbase_rs232.h \
-    ../QtFPS/oem/oem.h \
-    ../QtFPS/oem/oemp.h \
+    ../QtFPSGui/oem/commbase.h \
+    ../QtFPSGui/oem/impl/commbase_qt.h \
+    ../QtFPSGui/oem/impl/commbase_rs232.h \
+    ../QtFPSGui/oem/oem.h \
+    ../QtFPSGui/oem/oemp.h \
     \
-    ../QtFPS/config.h \
-    ../QtFPS/controller.h \
-    ../QtFPS/helper.h
+    ../QtFPSGui/config.h \
+    ../QtFPSGui/controller.h \
+    ../QtFPSGui/helper.h
 
 DEFINES += ENABLED_QT5
 DEFINES += QT_SERIAL_COMM
@@ -57,6 +57,6 @@ DEFINES += QT_SERIAL_COMM
 #                                   http://www.teuniz.net/RS-232/                                  #
 #--------------------------------------------------------------------------------------------------#
 
-INCLUDEPATH += ../QtFPS/RS232
-HEADERS     += ../QtFPS/RS232/rs232.h
-SOURCES     += ../QtFPS/RS232/rs232.c
+INCLUDEPATH += ../QtFPSGui/RS232
+HEADERS     += ../QtFPSGui/RS232/rs232.h
+SOURCES     += ../QtFPSGui/RS232/rs232.c

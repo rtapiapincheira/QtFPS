@@ -9,7 +9,7 @@ QT += core serialport
 QT += gui
 QT += widgets
 
-TARGET   = QtFPS
+TARGET   = QtFPSGui
 TEMPLATE = app
 
 RC_FILE += icons.rc
