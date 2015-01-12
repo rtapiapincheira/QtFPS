@@ -19,8 +19,7 @@ void handlerUiPolling(void *parameter) {
 //#endif
 }
 
-Controller::Controller(QObject *parent) :
-    QObject(parent)
+Controller::Controller() : QObject(0)
 {
 }
 

@@ -28,8 +28,8 @@ SOURCES += \
     ../QtFPSGui/oem/oem.cpp \
     ../QtFPSGui/oem/oemp.cpp \
     \
-    ../QtFPS/controller.cpp \
-    ../QtFPS/helper.cpp
+    ../QtFPSGui/controller.cpp \
+    ../QtFPSGui/helper.cpp
 
 HEADERS += \
     ../QtFPSConsole/argsparser.h \
