@@ -31,8 +31,10 @@ Makefile
 Makefile.Debug
 Makefile.Release
 
-**/debug/**
-**/release/**
+**/debug/*
+**/release/*
 
 **/object_script.*.Release
 **/object_script.*.Debug
+
+**/ui_*.h
