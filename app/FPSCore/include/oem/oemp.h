@@ -1,8 +1,6 @@
 #ifndef OEMP_H
 #define OEMP_H
 
-//#include <QtGlobal>
-
 #include "config.h"
 #include "commbase.h"
 

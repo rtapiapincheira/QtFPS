@@ -14,10 +14,7 @@ LedLocker::~LedLocker() {
 }
 
 void handlerUiPolling(void *parameter) {
-//    Q_UNUSED(parameter);
-//#ifdef MODE_WINDOW
-//    qApp->processEvents();
-//#endif
+// Do nothing!
 }
 
 Controller::Controller(CCommSerial *serial_port) :
@@ -79,15 +76,6 @@ void Controller::__open() {
 #endif
         return;
     }
-/*
-    setResult(
-        QString("FirmwareVersion: %1, IsoAreaMaxSize: %2 KB")
-            .arg(QString::number(oem.gDevInfo.FirmwareVersion, 16))
-            .arg(oem.gDevInfo.IsoAreaMaxSize / 1024),
-        QString("DeviceSN: %1")
-            .arg(ui->formatSerialNumber(oem.gDevInfo.DeviceSerialNumber))
-
-    );*/
 }
 
 void Controller::__close() {

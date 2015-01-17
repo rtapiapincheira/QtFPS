@@ -48,13 +48,11 @@ typedef unsigned long long uint64; /* 64 bit unsigned */
 
 class Config {
 public:
-    //QString port;
     std::string port;
     uint baudrate;
 
     uint id;
 
-    //QString filename;
     std::string filename;
 
     uint action;

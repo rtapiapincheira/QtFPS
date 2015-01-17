@@ -34,7 +34,6 @@ void Helper::saveLastImage(const std::string &_filename) {
 #ifdef OUTPUT_DEBUG
         printf("Error, cannot save last image because there's no such image\n");
 #endif
-        printf("error here!\n");
         return;
     }
 

@@ -5,8 +5,6 @@
 #include <sys/time.h>
 #include <cstring>
 
-
-
 int64 Utils::writeAll(const std::string &filename, uchar *buffer, uint size) {
     std::ofstream out;
     out.open(filename.c_str(), std::ios::out | std::ios::binary);
@@ -19,23 +17,6 @@ int64 Utils::writeAll(const std::string &filename, uchar *buffer, uint size) {
         return size;
     }
     return -1;
-
-    /*
-    QFile file(filename);
-    if (file.open(QIODevice::WriteOnly)) {
-        qint64 written = 0;
-        while(written < size) {
-            qint64 w = file.write((char*)(buffer+written), size-written);
-            if (w < 0) {
-                break;
-            }
-            written += w;
-        }
-        file.close();
-        return written;
-    }
-    return -1;
-    */
 }
 
 int64 Utils::readAll(const std::string &filename, uchar *buffer, uint size) {
@@ -71,7 +52,6 @@ int64 Utils::currentMillis() {
     struct timeval tp;
     gettimeofday(&tp, NULL);
     return (int64) ( ((int64)tp.tv_sec)*1000 + ((int64)tp.tv_usec)/1000 );
-    //return (int64) (((double)clock())/CLOCKS_PER_SEC)*1000;
 }
 
 std::string Utils::format(const char *fmt, int x1) {

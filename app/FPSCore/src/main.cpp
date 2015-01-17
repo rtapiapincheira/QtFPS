@@ -11,7 +11,7 @@ void handler(void *p) {
 int main(int argc, char **argv) {
 
     Helper h;
-    h.consoleConfig.port = "COM2";
+    h.consoleConfig.port = "/dev/tty.usbserial-A6026R24";
     h.consoleConfig.baudrate = 115200;
     h.consoleConfig.filename = "output.png";
 

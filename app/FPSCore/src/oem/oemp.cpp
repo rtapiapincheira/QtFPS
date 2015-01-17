@@ -4,8 +4,6 @@
 
 #include <string>
 
-//#include <QDebug>
-
 Oemp::Oemp(CCommSerial *_serial_port) :
     serial_port(_serial_port)
 {

@@ -5,8 +5,6 @@
 
 #include <string>
 
-//#include <QtCore>
-
 /**
  * @brief The CCommSerial class abstracts the serial communication using an specific library for it.
  *
