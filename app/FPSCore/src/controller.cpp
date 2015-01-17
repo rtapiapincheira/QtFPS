@@ -3,6 +3,7 @@
 #include "oem.h"
 
 #include <cstdio>
+#include <cstring>
 
 LedLocker::LedLocker(Oem *_oem) {
     oem = _oem;

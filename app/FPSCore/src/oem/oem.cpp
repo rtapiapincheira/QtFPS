@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 
 int Oem::commandRun(ushort wCmd, int nCmdParam) {
     int x;

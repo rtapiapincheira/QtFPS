@@ -3,6 +3,7 @@
 #include "commbase.h"
 
 #include <string>
+#include <cstring>
 
 Oemp::Oemp(CCommSerial *_serial_port) :
     serial_port(_serial_port)

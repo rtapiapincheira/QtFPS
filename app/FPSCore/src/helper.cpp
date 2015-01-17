@@ -3,6 +3,7 @@
 #include "lodepng.h"
 
 #include <vector>
+#include <cstdio>
 
 Helper::Helper() :
 
