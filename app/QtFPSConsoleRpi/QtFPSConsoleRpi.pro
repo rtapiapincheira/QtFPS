@@ -28,11 +28,13 @@ INCLUDEPATH += \
 
 HEADERS += \
     $${FPS_CONSOLE_PATH}/include/argsparser.h \
-    $${FPS_CONSOLE_PATH}/include/console_application.h
+    $${FPS_CONSOLE_PATH}/include/console_application.h \
+    $${FPS_CONSOLE_PATH}/include/oem/impl/commbase_qt.h
 
 SOURCES += \
     $${FPS_CONSOLE_PATH}/src/argsparser.cpp \
-    $${FPS_CONSOLE_PATH}/src/console_application.cpp
+    $${FPS_CONSOLE_PATH}/src/console_application.cpp \
+    $${FPS_CONSOLE_PATH}/src/oem/impl/commbase_qt.cpp
 
 #--------------------------------------------------------------------------------------------------#
 #                         FPSCore https://github.com/rtapiapincheira/QtFPS                         #

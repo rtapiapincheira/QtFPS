@@ -1,6 +1,10 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(Ui::MainWindowDialog *_d, Helper *_ui, Controller *c) :
+void uiPolling(void *p) {
+    qApp->processEvents();
+}
+
+MainWindow::MainWindow(Ui::MainWindowDialog *_d, GuiHelper *_ui, Controller *c) :
     QMainWindow(0),
     ui(*_ui),
     controller(*c)
@@ -8,7 +12,7 @@ MainWindow::MainWindow(Ui::MainWindowDialog *_d, Helper *_ui, Controller *c) :
     _d->setupUi(this);
     ui.setup(_d);
 
-    controller.setup(&ui);
+    controller.setup(&ui, uiPolling);
 }
 
 MainWindow::~MainWindow() {

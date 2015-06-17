@@ -14,7 +14,7 @@ TEMPLATE = app
 
 INCLUDEPATH += \
     include \
-    include\oem\impl
+    include/oem/impl
 
 HEADERS += \
     include/argsparser.h \
