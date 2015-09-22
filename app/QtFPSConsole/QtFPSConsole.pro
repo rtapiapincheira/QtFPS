@@ -6,6 +6,8 @@
 
 QT       += core serialport
 
+QMAKE_MAC_SDK = macosx10.11
+
 TARGET   = QtFPSConsole
 CONFIG  += console
 CONFIG  -= app_bundle

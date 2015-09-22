@@ -6,6 +6,8 @@
 
 QT       += core
 
+QMAKE_MAC_SDK = macosx10.11
+
 TARGET   = QtFPSConsoleRpi
 CONFIG  += console
 CONFIG  -= app_bundle

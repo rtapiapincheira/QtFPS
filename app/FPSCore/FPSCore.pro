@@ -7,6 +7,8 @@
 QT       += core
 QT       -= gui
 
+QMAKE_MAC_SDK = macosx10.11
+
 TARGET = FPSCore
 CONFIG   += console
 CONFIG   -= app_bundle

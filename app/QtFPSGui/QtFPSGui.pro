@@ -6,6 +6,8 @@
 
 QT += core serialport
 
+QMAKE_MAC_SDK = macosx10.11
+
 QT += gui
 QT += widgets
 
